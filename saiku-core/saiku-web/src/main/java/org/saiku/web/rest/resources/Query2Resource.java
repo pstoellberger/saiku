@@ -46,10 +46,12 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.saiku.olap.dto.SimpleCubeElement;
+import org.saiku.olap.dto.resultset.CellDataSet;
 import org.saiku.olap.query2.ThinQuery;
 import org.saiku.olap.util.SaikuProperties;
 import org.saiku.service.olap.ThinQueryService;
 import org.saiku.service.util.exception.SaikuServiceException;
+import org.saiku.web.export.PdfReport;
 import org.saiku.web.rest.objects.resultset.QueryResult;
 import org.saiku.web.rest.util.RestUtil;
 import org.slf4j.Logger;
@@ -440,14 +442,56 @@ public class Query2Resource {
 
 	}
 
-	
-	@Deprecated
+	@POST
+	@Produces({"application/pdf" })
+	@Path("/{queryname}/export/pdf")
+	public Response exportPdfWithChart(
+			@PathParam("queryname")  String queryName,
+			@PathParam("svg")  @DefaultValue("") String svg)
+	{
+		return exportPdfWithChartAndFormat(queryName, null, svg);
+	}
+		
 	@GET
 	@Produces({"application/pdf" })
 	@Path("/{queryname}/export/pdf")
 	public Response exportPdf(@PathParam("queryname")  String queryName)
 	{
-		return Response.serverError().entity("We should rebuild this using iText").build();
+		return exportPdfWithChartAndFormat(queryName, null, null);
+	}
+
+	@GET
+	@Produces({"application/pdf" })
+	@Path("/{queryname}/export/pdf/{format}")
+	public Response exportPdfWithFormat(
+			@PathParam("queryname")  String queryName,
+			@PathParam("format") String format)
+	{
+		return exportPdfWithChartAndFormat(queryName, format, null);
+	}
+	
+	@POST
+	@Produces({"application/pdf" })
+	@Path("/{queryname}/export/pdf/{format}")
+	public Response exportPdfWithChartAndFormat(
+			@PathParam("queryname")  String queryName,
+			@PathParam("format") String format,
+			@FormParam("svg") @DefaultValue("") String svg)
+	{
+		
+		try {
+			CellDataSet cs = thinQueryService.getFormattedResult(queryName, format);
+			QueryResult qr = RestUtil.convert(cs);
+			PdfReport pdf = new PdfReport();
+			byte[] doc  = pdf.pdf(qr, svg);
+			return Response.ok(doc).type("application/pdf").header(
+					"content-disposition",
+					"attachment; filename = export.pdf").header(
+							"content-length",doc.length).build();
+		} catch (Exception e) {
+			log.error("Error exporting query to  PDF", e);
+			return Response.serverError().entity(e.getMessage()).status(Status.INTERNAL_SERVER_ERROR).build();
+		}
 	}
 
 	

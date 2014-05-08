@@ -203,6 +203,20 @@ public class ThinQueryService implements Serializable {
 		ICellSetFormatter cf = cff.forName(formatterName);
 		return execute(tq, cf);
 	}
+	
+	public CellDataSet getFormattedResult(String query, String format) throws Exception {
+		QueryContext qc = getContext(query);
+		ThinQuery tq = qc.getOlapQuery();
+		CellSet cs = qc.getOlapResult();
+		String formatterName = (StringUtils.isBlank(format) ? "" : format.toLowerCase());
+		ICellSetFormatter cf = cff.forName(formatterName);
+		CellDataSet result = OlapResultSetUtil.cellSet2Matrix(cs,cf);
+		
+		if (ThinQuery.Type.QUERYMODEL.equals(tq.getType()) && cf instanceof FlattenedCellSetFormatter && tq.hasAggregators()) {
+			calculateTotals(tq, result, cs, cf);
+		}
+		return result;
+	}
 
 	public CellDataSet execute(ThinQuery tq, ICellSetFormatter formatter) {
 		try {
