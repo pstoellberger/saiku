@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.servlet.ServletException;
@@ -68,13 +69,13 @@ import org.saiku.olap.util.formatter.ICellSetFormatter;
 import org.saiku.service.olap.OlapDiscoverService;
 import org.saiku.service.olap.OlapQueryService;
 import org.saiku.service.util.exception.SaikuServiceException;
+import org.saiku.web.export.PdfReport;
 import org.saiku.web.rest.objects.MdxQueryObject;
 import org.saiku.web.rest.objects.SavedQuery;
 import org.saiku.web.rest.objects.SelectionRestObject;
 import org.saiku.web.rest.objects.resultset.QueryResult;
 import org.saiku.web.rest.util.RestUtil;
 import org.saiku.web.rest.util.ServletUtil;
-import org.saiku.web.svg.PdfReport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -152,7 +153,7 @@ public class QueryResource {
 		}
 		catch(Exception e){
 			log.error("Cannot delete query (" + queryName + ")",e);
-			return(Status.NOT_FOUND);
+			throw new WebApplicationException(Response.serverError().entity(e).build());
 		}
 	}
 
@@ -416,15 +417,15 @@ public class QueryResource {
 	{
 		
 		try {
-			PdfReport pdf = new PdfReport();
 			CellDataSet cs = null;
 			if (StringUtils.isNotBlank(format)) {
 				cs = olapQueryService.execute(queryName, format);
 			} else {
 				cs = olapQueryService.execute(queryName);
 			}
-			
-			byte[] doc  = pdf.pdf(cs, svg);
+			QueryResult qr = RestUtil.convert(cs);
+			PdfReport pdf = new PdfReport();
+			byte[] doc  = pdf.pdf(qr, svg);
 			return Response.ok(doc).type("application/pdf").header(
 					"content-disposition",
 					"attachment; filename = export.pdf").header(
@@ -614,6 +615,40 @@ public class QueryResource {
 		return rsc;
 
 	}
+	
+	@POST
+	@Produces({"application/json" })
+	@Path("/{queryname}/drillacross")
+	public SaikuQuery drillacross(
+			@PathParam("queryname") String queryName, 
+			@FormParam("position") String position,
+			@FormParam("drill") String returns)
+	{
+		if (log.isDebugEnabled()) {
+			log.debug("TRACK\t"  + "\t/query/" + queryName + "/drillacross\tPOST");
+		}
+		
+		try {
+				String[] positions = position.split(":");
+				List<Integer> cellPosition = new ArrayList<Integer>();
+				for (String p : positions) {
+					Integer pInt = Integer.parseInt(p);
+					cellPosition.add(pInt);
+				}
+				ObjectMapper mapper = new ObjectMapper();
+				Map<String, List<String>> levels = mapper.readValue(returns, TypeFactory.mapType(Map.class, TypeFactory.fromClass(String.class),  TypeFactory.collectionType(ArrayList.class, String.class)));
+				SaikuQuery q = olapQueryService.drillacross(queryName, cellPosition, levels);
+				return q;
+
+		}
+		catch (Exception e) {
+			log.error("Cannot execute query (" + queryName + ")",e);
+			String error = ExceptionUtils.getRootCauseMessage(e);
+			throw new WebApplicationException(Response.serverError().entity(error).build());
+
+		}
+	}
+
 
 	@GET
 	@Produces({"application/json" })
