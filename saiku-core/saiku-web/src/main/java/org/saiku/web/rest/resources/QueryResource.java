@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.servlet.ServletException;
@@ -152,7 +153,7 @@ public class QueryResource {
 		}
 		catch(Exception e){
 			log.error("Cannot delete query (" + queryName + ")",e);
-			return(Status.NOT_FOUND);
+			throw new WebApplicationException(Response.serverError().entity(e).build());
 		}
 	}
 
@@ -614,6 +615,40 @@ public class QueryResource {
 		return rsc;
 
 	}
+	
+	@POST
+	@Produces({"application/json" })
+	@Path("/{queryname}/drillacross")
+	public SaikuQuery drillacross(
+			@PathParam("queryname") String queryName, 
+			@FormParam("position") String position,
+			@FormParam("drill") String returns)
+	{
+		if (log.isDebugEnabled()) {
+			log.debug("TRACK\t"  + "\t/query/" + queryName + "/drillacross\tPOST");
+		}
+		
+		try {
+				String[] positions = position.split(":");
+				List<Integer> cellPosition = new ArrayList<Integer>();
+				for (String p : positions) {
+					Integer pInt = Integer.parseInt(p);
+					cellPosition.add(pInt);
+				}
+				ObjectMapper mapper = new ObjectMapper();
+				Map<String, List<String>> levels = mapper.readValue(returns, TypeFactory.mapType(Map.class, TypeFactory.fromClass(String.class),  TypeFactory.collectionType(ArrayList.class, String.class)));
+				SaikuQuery q = olapQueryService.drillacross(queryName, cellPosition, levels);
+				return q;
+
+		}
+		catch (Exception e) {
+			log.error("Cannot execute query (" + queryName + ")",e);
+			String error = ExceptionUtils.getRootCauseMessage(e);
+			throw new WebApplicationException(Response.serverError().entity(error).build());
+
+		}
+	}
+
 
 	@GET
 	@Produces({"application/json" })
