@@ -356,10 +356,13 @@ public class ThinQueryService implements Serializable {
 				final OlapConnection con = olapDiscoverService.getNativeConnection(cube.getConnection());
 				return SaikuMondrianHelper.isMondrianDrillthrough(con, query.getMdx());
 			}
-			return false;
 		} catch (Exception e) {
-			throw new SaikuServiceException("Error checking for DRILLTHROUGH: " + query.getName() + " DRILLTHROUGH MDX:" + query.getMdx(),e);
-		}	
+			log.warn("Error checking for DRILLTHROUGH: " + query.getName() + " DRILLTHROUGH MDX:" + query.getMdx(),e);	
+		} catch (Error e) {
+			log.warn("Error checking for DRILLTHROUGH: " + query.getName() + " DRILLTHROUGH MDX:" + query.getMdx(),e);
+		}
+		return false;
+	
 	}
 	
 	public ResultSet drillthrough(ThinQuery query) {
