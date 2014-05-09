@@ -147,12 +147,22 @@ public class PentahoRepositoryResource2 implements ISaikuRepository {
 			Document navDoc = getRepositoryDocument(PentahoSessionHolder.getSession());
 			Node tree = navDoc.getRootElement();
 			
+//			List nodes = tree.selectNodes("./file[@name='project']/file[@name='common']");
 			String context = null;
-			if (StringUtils.isNotBlank(path) && !path.startsWith("/")) {
-				path = "/" + path;
+			if (StringUtils.isNotBlank(path)) {
+				String rootNodePath = ".";
+				String[] parts = path.split("/");
+				for (String part : parts) {
+					rootNodePath += "/file[@name='" + part + "']";
+				}
+				tree = tree.selectSingleNode(rootNodePath);
+				if (tree == null) {
+					throw new Exception("Cannot find root folder with path: " + rootNodePath);
+				}
+				path = StringUtils.join(parts, "/");
 				context = path;
 			} else {
-				context = "/";
+				context = "";
 			}
 			return processTree(tree, context, type);
 		} catch (Exception e) {
@@ -429,25 +439,15 @@ public class PentahoRepositoryResource2 implements ISaikuRepository {
 		try
 		{
 			List nodes = tree.selectNodes(xPathDir);
-			final String[] parentPathArray = parentPath.split("/");
-			final String solutionName = parentPathArray.length > 2 ? parentPathArray[2] : "";
-			final String solutionPath = parentPathArray.length > 3 ? parentPath.substring(parentPath.indexOf(solutionName) + solutionName.length() + 1, parentPath.length()) + "/" : "";
 
 			for (final Object node1 : nodes)
 			{
 				final Node node = (Node) node1;
 				String name = node.valueOf("@name");
-				if (parentPathArray.length > 0)
-				{
 					final String localizedName = node.valueOf("@localized-name");
 					final boolean visible = node.valueOf("@visible").equals("true");
 					final boolean isDirectory = node.valueOf("@isDirectory").equals("true");
-					final String path = solutionName.length() == 0 ? "" : solutionPath + name;
-					final String solution = solutionName.length() == 0 ? name : solutionName;
-
-					final String relativePath = solution.length() > 0 
-													&& path != null 
-													&& path.length() > 0 ? solution + "/" + path : solution;
+					final String path = StringUtils.isNotBlank(parentPath) ? parentPath + "/" + name : name;
 
 					if (visible && isDirectory)
 					{
@@ -467,27 +467,20 @@ public class PentahoRepositoryResource2 implements ISaikuRepository {
 							String t =  fileNode.valueOf("@localized-name");
 							String n = fileNode.valueOf("@name");
 							if (vis) {
-								List<AclMethod> acls = getAcl(relativePath + "/" + name, false);
-								children.add(new RepositoryFileObject(t, "#" + relativePath + "/" + n, fileType, relativePath + "/" + n, acls));
+								List<AclMethod> acls = getAcl(path, false);
+								children.add(new RepositoryFileObject(t, "#" + path + "/" + n, fileType, path + "/" + n, acls));
 							}
 						}
-						children.addAll(processTree(node, parentPath + "/" + name, fileType));
-						List<AclMethod> acls = getAcl(relativePath, true);
-						repoObjects.add(new RepositoryFolderObject(localizedName, "#" + relativePath, relativePath, acls, children));
+						children.addAll(processTree(node, path, fileType));
+						List<AclMethod> acls = getAcl(path, true);
+						repoObjects.add(new RepositoryFolderObject(localizedName, "#" + path, path, acls, children));
 					} else if (visible && !isDirectory) {
 						if (StringUtils.isBlank(fileType) || name.endsWith(fileType)) {
-							List<AclMethod> acls = getAcl(relativePath + "/" + name, false);
-							repoObjects.add(new RepositoryFileObject(localizedName, "#" + relativePath + "/" + name, fileType, relativePath + "/" + name, acls));
+							List<AclMethod> acls = getAcl(path, false);
+							repoObjects.add(new RepositoryFileObject(localizedName, "#" + path, fileType, path, acls));
 						}
 					}
-
-				}
-				else
-				{
-					repoObjects = processTree(tree, tree.valueOf("@path"), fileType);
-				}
 			}
-
 		}
 		catch (Exception e)
 		{
