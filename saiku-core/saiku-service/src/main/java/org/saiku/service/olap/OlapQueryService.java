@@ -567,8 +567,10 @@ public class OlapQueryService implements Serializable {
 			final OlapConnection con = olapDiscoverService.getNativeConnection(getQuery(queryName).getCube().getConnectionName());
 			return SaikuMondrianHelper.isMondrianDrillthrough(con, drillthroughMdx);
 		} catch (Exception e) {
+			throw new SaikuServiceException("Error checking for DRILLTHROUGH: " + queryName + " DRILLTHROUGH MDX:" + drillthroughMdx,e);	
+		} catch (Error e) {
 			throw new SaikuServiceException("Error checking for DRILLTHROUGH: " + queryName + " DRILLTHROUGH MDX:" + drillthroughMdx,e);
-		}	
+		}
 	}
 	
 	public ResultSet drillthrough(String queryName, String drillthroughMdx) {
