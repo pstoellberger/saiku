@@ -428,7 +428,7 @@ public class PentahoRepositoryResource2 implements ISaikuRepository {
 
 	private List<IRepositoryObject> processTree(final Node tree, final String parentPath, String fileType)
 	{
-		final String xPathDir = "./file[@isDirectory='true']"; //$NON-NLS-1$
+		final String xPathDir = "./file"; //$NON-NLS-1$
 		List<IRepositoryObject> repoObjects = new ArrayList<IRepositoryObject>();
 		List<AclMethod> defaultAcls = new ArrayList<AclMethod>();
 		defaultAcls.add(AclMethod.READ);
