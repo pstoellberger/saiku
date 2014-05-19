@@ -452,25 +452,25 @@ public class PentahoRepositoryResource2 implements ISaikuRepository {
 					if (visible && isDirectory)
 					{
 						List<IRepositoryObject> children = new ArrayList<IRepositoryObject>();
-						
-						
-						List<Node> fileNodes;
-						if (StringUtils.isBlank(fileType)) {
-							fileNodes = node.selectNodes("./file[@isDirectory='false']");
-						}
-						else {
-							fileNodes = node.selectNodes("./file[@isDirectory='false'][ends-with(string(@name),'." + fileType + "') or ends-with(string(@name),'." + fileType + "')]");
-						}
-						for (final Node fileNode : fileNodes)
-						{
-							boolean vis =  fileNode.valueOf("@visible").equals("true");
-							String t =  fileNode.valueOf("@localized-name");
-							String n = fileNode.valueOf("@name");
-							if (vis) {
-								List<AclMethod> acls = getAcl(path, false);
-								children.add(new RepositoryFileObject(t, "#" + path + "/" + n, fileType, path + "/" + n, acls));
-							}
-						}
+//						
+//						
+//						List<Node> fileNodes;
+//						if (StringUtils.isBlank(fileType)) {
+//							fileNodes = node.selectNodes("./file[@isDirectory='false']");
+//						}
+//						else {
+//							fileNodes = node.selectNodes("./file[@isDirectory='false'][ends-with(string(@name),'." + fileType + "') or ends-with(string(@name),'." + fileType + "')]");
+//						}
+//						for (final Node fileNode : fileNodes)
+//						{
+//							boolean vis =  fileNode.valueOf("@visible").equals("true");
+//							String t =  fileNode.valueOf("@localized-name");
+//							String n = fileNode.valueOf("@name");
+//							if (vis) {
+//								List<AclMethod> acls = getAcl(path, false);
+//								children.add(new RepositoryFileObject(t, "#" + path + "/" + n, fileType, path + "/" + n, acls));
+//							}
+//						}
 						children.addAll(processTree(node, path, fileType));
 						List<AclMethod> acls = getAcl(path, true);
 						repoObjects.add(new RepositoryFolderObject(localizedName, "#" + path, path, acls, children));
