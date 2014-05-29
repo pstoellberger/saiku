@@ -19,7 +19,6 @@ package org.saiku.web.rest.resources;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -39,6 +38,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 
 import org.apache.commons.lang.StringUtils;
 import org.saiku.olap.query2.ThinQuery;
+import org.saiku.web.export.PdfReport;
 import org.saiku.web.rest.objects.resultset.QueryResult;
 import org.saiku.web.rest.util.ServletUtil;
 import org.saiku.web.svg.Converter;
@@ -98,6 +98,36 @@ public class ExporterResource {
 			return Response.serverError().entity(e.getMessage()).status(Status.INTERNAL_SERVER_ERROR).build();
 		}
 	}
+	
+	@GET
+	@Produces({"application/json" })
+	@Path("/saiku/pdf")
+	public Response exportPdf(@QueryParam("file") String file, 
+			@QueryParam("formatter") String formatter,
+			@Context HttpServletRequest servletRequest) 
+	{
+		try {
+			Response f = repository.getResource(file);
+			String fileContent = new String( (byte[]) f.getEntity());
+			String queryName = UUID.randomUUID().toString();			
+			Map<String, String> parameters = ServletUtil.getParameters(servletRequest);
+			ThinQuery tq = query2Resource.createQuery(queryName, fileContent, null, null);
+			if (parameters != null) {
+				tq.getParameters().putAll(parameters);
+			}
+			QueryResult qr = query2Resource.execute(tq);
+			PdfReport pdf = new PdfReport();
+			byte[] doc  = pdf.pdf(qr, null);
+			return Response.ok(doc).type("application/pdf").header(
+					"content-disposition",
+					"attachment; filename = export.pdf").header(
+							"content-length",doc.length).build();
+		} catch (Exception e) {
+			log.error("Error exporting XLS for file: " + file, e);
+			return Response.serverError().entity(e.getMessage()).status(Status.INTERNAL_SERVER_ERROR).build();
+		}
+	}
+
 
 	@GET
 	@Produces({"application/json" })
