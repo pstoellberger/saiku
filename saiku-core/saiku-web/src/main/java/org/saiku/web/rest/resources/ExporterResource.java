@@ -123,7 +123,7 @@ public class ExporterResource {
 					"attachment; filename = export.pdf").header(
 							"content-length",doc.length).build();
 		} catch (Exception e) {
-			log.error("Error exporting XLS for file: " + file, e);
+			log.error("Error exporting PDF for file: " + file, e);
 			return Response.serverError().entity(e.getMessage()).status(Status.INTERNAL_SERVER_ERROR).build();
 		}
 	}
@@ -155,6 +155,8 @@ public class ExporterResource {
 			return Response.serverError().entity(e.getMessage()).status(Status.INTERNAL_SERVER_ERROR).build();
 		}
 	}
+
+
 
 	@GET
 	@Produces({"application/json" })
