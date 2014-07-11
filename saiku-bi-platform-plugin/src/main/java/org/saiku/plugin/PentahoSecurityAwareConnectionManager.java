@@ -109,6 +109,9 @@ public class PentahoSecurityAwareConnectionManager extends AbstractConnectionMan
 			}
 			if (con != null) {
 				con.clearCache();
+				try {
+					con.getConnection().close();
+				} catch (Exception e) {}
 			}
 			con = null;
 			return getInternalConnection(name, datasource);
