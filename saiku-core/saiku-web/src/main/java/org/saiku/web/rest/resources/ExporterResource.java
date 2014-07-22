@@ -19,7 +19,9 @@ package org.saiku.web.rest.resources;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
@@ -91,6 +93,15 @@ public class ExporterResource {
 			if (parameters != null) {
 				tq.getParameters().putAll(parameters);
 			}
+			if (StringUtils.isNotBlank(formatter)) {
+				HashMap<String, Object> p = new HashMap<String, Object>();
+				p.put("saiku.olap.result.formatter", formatter);
+				if (tq.getProperties() == null) {
+					tq.setProperties(p);
+				} else {
+					tq.getProperties().putAll(p);
+				}
+			}
 			query2Resource.execute(tq);
 			return query2Resource.getQueryExcelExport(queryName, formatter);
 		} catch (Exception e) {
@@ -114,6 +125,15 @@ public class ExporterResource {
 			ThinQuery tq = query2Resource.createQuery(queryName, fileContent, null, null);
 			if (parameters != null) {
 				tq.getParameters().putAll(parameters);
+			}
+			if (StringUtils.isNotBlank(formatter)) {
+				HashMap<String, Object> p = new HashMap<String, Object>();
+				p.put("saiku.olap.result.formatter", formatter);
+				if (tq.getProperties() == null) {
+					tq.setProperties(p);
+				} else {
+					tq.getProperties().putAll(p);
+				}
 			}
 			QueryResult qr = query2Resource.execute(tq);
 			PdfReport pdf = new PdfReport();
@@ -148,6 +168,15 @@ public class ExporterResource {
 			if (parameters != null) {
 				tq.getParameters().putAll(parameters);
 			}
+			if (StringUtils.isNotBlank(formatter)) {
+				HashMap<String, Object> p = new HashMap<String, Object>();
+				p.put("saiku.olap.result.formatter", formatter);
+				if (tq.getProperties() == null) {
+					tq.setProperties(p);
+				} else {
+					tq.getProperties().putAll(p);
+				}
+			}
 			query2Resource.execute(tq);
 			return query2Resource.getQueryCsvExport(queryName);
 		} catch (Exception e) {
@@ -176,6 +205,15 @@ public class ExporterResource {
 			ThinQuery tq = query2Resource.createQuery(queryName, fileContent, null, null);
 			if (parameters != null) {
 				tq.getParameters().putAll(parameters);
+			}
+			if (StringUtils.isNotBlank(formatter)) {
+				HashMap<String, Object> p = new HashMap<String, Object>();
+				p.put("saiku.olap.result.formatter", formatter);
+				if (tq.getProperties() == null) {
+					tq.setProperties(p);
+				} else {
+					tq.getProperties().putAll(p);
+				}
 			}
 			QueryResult qr = query2Resource.execute(tq);
 			return Response.ok().entity(qr).build();

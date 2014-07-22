@@ -55,6 +55,10 @@ import org.olap4j.metadata.Member;
 import org.saiku.olap.dto.SaikuCube;
 import org.saiku.olap.dto.SimpleCubeElement;
 import org.saiku.olap.dto.resultset.CellDataSet;
+import org.saiku.olap.query.IQuery;
+import org.saiku.olap.query.IQuery.QueryType;
+import org.saiku.olap.query.OlapQuery;
+import org.saiku.olap.query.QueryDeserializer;
 import org.saiku.olap.query2.ThinHierarchy;
 import org.saiku.olap.query2.ThinQuery;
 import org.saiku.olap.query2.ThinQueryModel.AxisLocation;
@@ -62,6 +66,7 @@ import org.saiku.olap.query2.util.Fat;
 import org.saiku.olap.query2.util.Thin;
 import org.saiku.olap.util.ObjectUtil;
 import org.saiku.olap.util.OlapResultSetUtil;
+import org.saiku.olap.util.QueryConverter;
 import org.saiku.olap.util.SaikuProperties;
 import org.saiku.olap.util.SaikuUniqueNameComparator;
 import org.saiku.olap.util.formatter.CellSetFormatterFactory;
@@ -729,5 +734,30 @@ public class ThinQueryService implements Serializable {
 		} catch (Exception e) {
 			throw new SaikuServiceException("Error drilling across: " + queryName, e);
 		}
+	}
+
+	public boolean isOldQuery(String xml) {
+		return StringUtils.isNotBlank(xml) && xml.trim().startsWith("<?xml");
+	}
+	
+	public ThinQuery convertQuery(String xml) throws Exception {
+		if (StringUtils.isNotBlank(xml) && xml.trim().startsWith("<?xml")) {
+				QueryDeserializer qd = new QueryDeserializer();
+				SaikuCube scube = qd.getFakeCube(xml);
+				OlapConnection con = olapDiscoverService.getNativeConnection(scube.getConnection());
+				IQuery query = qd.unparse(xml, con);
+				
+				if (QueryType.QM.equals(query.getType())) {
+					OlapQuery qr = (OlapQuery) query;
+					Query sQ = QueryConverter.convertQuery(qr.getQuery());
+					SaikuCube converted = ObjectUtil.convert(scube.getConnection(), sQ.getCube());
+					return Thin.convert(sQ, converted);
+				} else {
+					SaikuCube converted = ObjectUtil.convert(scube.getConnection(), olapDiscoverService.getNativeCube(scube));
+					return new ThinQuery(query.getName(), converted, query.getMdx());
+				}
+		}
+		return null;
+		
 	}
 }

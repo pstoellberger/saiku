@@ -48,12 +48,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.type.TypeFactory;
-import org.saiku.olap.dto.SaikuQuery;
 import org.saiku.olap.dto.SimpleCubeElement;
 import org.saiku.olap.dto.resultset.CellDataSet;
-import org.saiku.olap.query.IQuery;
 import org.saiku.olap.query2.ThinQuery;
-import org.saiku.olap.util.ObjectUtil;
 import org.saiku.olap.util.SaikuProperties;
 import org.saiku.service.olap.ThinQueryService;
 import org.saiku.service.util.exception.SaikuServiceException;
@@ -80,7 +77,7 @@ public class Query2Resource {
 	}
 
 	private ISaikuRepository repository;
-	
+
 	@Autowired
 	public void setRepository(ISaikuRepository repository){
 		this.repository = repository;
@@ -128,7 +125,7 @@ public class Query2Resource {
 			@FormParam("json") String jsonFormParam,
 			@FormParam("file") String fileFormParam,
 			MultivaluedMap<String, String> formParams) throws ServletException 
-	{
+			{
 		try {
 			ThinQuery tq = null;
 			String file = fileFormParam, 
@@ -137,39 +134,45 @@ public class Query2Resource {
 				json = formParams.containsKey("json") ? formParams.getFirst("json") : jsonFormParam;
 				file = formParams.containsKey("file") ? formParams.getFirst("file") : fileFormParam;
 			}
-				if (StringUtils.isNotBlank(json)) {
-					ObjectMapper om = new ObjectMapper();
-					tq = om.readValue(json, ThinQuery.class);
-					
-				} else if (StringUtils.isNotBlank(file)) {
-					Response f = repository.getResource(file);
-					String tqJson = new String( (byte[]) f.getEntity());
-					ObjectMapper om = new ObjectMapper();
-					tq = om.readValue(tqJson, ThinQuery.class);
-				}
+			String filecontent = null;
+			if (StringUtils.isNotBlank(json)) {
+				filecontent = json;
+			} else if (StringUtils.isNotBlank(file)) {
+				Response f = repository.getResource(file);
+				filecontent = new String( (byte[]) f.getEntity());
+			}
+			if (StringUtils.isBlank(filecontent)) {
+				throw new SaikuServiceException("Cannot create new query. Empty file content " + StringUtils.isNotBlank(json) + " or read from file:" + file);
+			}
+			if (thinQueryService.isOldQuery(filecontent)) {
+				tq = thinQueryService.convertQuery(filecontent);
+			} else {
+				ObjectMapper om = new ObjectMapper();
+				tq = om.readValue(filecontent, ThinQuery.class);
+			}
 
 			if (log.isDebugEnabled()) {
 				log.debug("TRACK\t"  + "\t/query/" + queryName + "\tPOST\t tq:" + (tq == null) + " file:" + (file));
 			}
-			
+
 			if (tq == null) {
 				throw new SaikuServiceException("Cannot create blank query (ThinQuery object = null)");
 			}
 			tq.setName(queryName);
-			
-//			SaikuCube cube = tq.getCube();
-//			if (StringUtils.isNotBlank(xml)) {
-//				String query = ServletUtil.replaceParameters(formParams, xml);
-//				return thinQueryService.createNewOlapQuery(queryName, query);
-//			}
+
+			//			SaikuCube cube = tq.getCube();
+			//			if (StringUtils.isNotBlank(xml)) {
+			//				String query = ServletUtil.replaceParameters(formParams, xml);
+			//				return thinQueryService.createNewOlapQuery(queryName, query);
+			//			}
 			return thinQueryService.createQuery(tq);
 		} catch (Exception e) {
 			log.error("Error creating new query", e);
 			throw new WebApplicationException(e);
 		}
-	}
-	
-	
+			}
+
+
 	@POST
 	@Consumes({"application/json" })
 	@Path("/execute")
@@ -184,7 +187,7 @@ public class Query2Resource {
 				rsc.setRuntime(runtime.intValue());
 				return rsc;
 			}
-			
+
 			QueryResult qr = RestUtil.convert(thinQueryService.execute(tq));
 			ThinQuery tqAfter = thinQueryService.getContext(tq.getName()).getOlapQuery();
 			qr.setQuery(tqAfter);
@@ -196,7 +199,7 @@ public class Query2Resource {
 			return new QueryResult(error);
 		}
 	}
-	
+
 	@DELETE
 	@Path("/{queryname}/cancel")
 	public Response cancel(@PathParam("queryname") String queryName){
@@ -213,7 +216,7 @@ public class Query2Resource {
 			throw new WebApplicationException(Response.serverError().entity(error).build());
 		}
 	}
-	
+
 	@POST
 	@Consumes({"application/json" })
 	@Path("/enrich")
@@ -228,7 +231,7 @@ public class Query2Resource {
 			throw new WebApplicationException(Response.serverError().entity(error).build());
 		}		
 	}
-	
+
 	@GET
 	@Produces({"application/json" })
 	@Path("/{queryname}/result/metadata/hierarchies/{hierarchy}/levels/{level}")
@@ -239,7 +242,7 @@ public class Query2Resource {
 			@QueryParam("result") @DefaultValue("true") boolean result,
 			@QueryParam("search") String searchString,
 			@QueryParam("searchlimit") @DefaultValue("-1") int searchLimit)
-	{
+			{
 		if (log.isDebugEnabled()) {
 			log.debug("TRACK\t" 
 					+ "\t/query/" + queryName + "/result/metadata"
@@ -254,9 +257,9 @@ public class Query2Resource {
 			String error = ExceptionUtils.getRootCauseMessage(e);
 			throw new WebApplicationException(Response.serverError().entity(error).build());
 		}
-	}
-	
-	
+			}
+
+
 	@GET
 	@Produces({"application/vnd.ms-excel" })
 	@Path("/{queryname}/export/xls")
@@ -324,7 +327,7 @@ public class Query2Resource {
 			throw new WebApplicationException(Response.serverError().entity(error).build());
 		}
 	}
-	
+
 	@PUT
 	@Consumes("application/x-www-form-urlencoded")
 	@Path("/{queryname}/zoomin")
@@ -344,7 +347,7 @@ public class Query2Resource {
 					for (String position : positions) {
 						String[] rPos = position.split(":");
 						List<Integer> cellPosition = new ArrayList<Integer>();
-	
+
 						for (String p : rPos) {
 							Integer pInt = Integer.parseInt(p);
 							cellPosition.add(pInt);
@@ -355,13 +358,13 @@ public class Query2Resource {
 			}
 			ThinQuery tq = thinQueryService.zoomIn(queryName, realPositions);
 			return tq;
-			
+
 		} catch (Exception e){
 			log.error("Cannot zoom in on query (" + queryName + ")",e);
 			throw new WebApplicationException(e);
 		}
 	}
-	
+
 	@GET
 	@Produces({"application/json" })
 	@Path("/{queryname}/drillthrough")
@@ -407,8 +410,8 @@ public class Query2Resource {
 				Statement statement = null;
 				Connection con = null;
 				try {
-					 statement = rs.getStatement();
-					 con = rs.getStatement().getConnection();
+					statement = rs.getStatement();
+					con = rs.getStatement().getConnection();
 				} catch (Exception e) {
 					throw new SaikuServiceException(e);
 				} finally {
@@ -494,7 +497,7 @@ public class Query2Resource {
 	{
 		return exportPdfWithChartAndFormat(queryName, null, svg);
 	}
-		
+
 	@GET
 	@Produces({"application/pdf" })
 	@Path("/{queryname}/export/pdf")
@@ -512,7 +515,7 @@ public class Query2Resource {
 	{
 		return exportPdfWithChartAndFormat(queryName, format, null);
 	}
-	
+
 	@POST
 	@Produces({"application/pdf" })
 	@Path("/{queryname}/export/pdf/{format}")
@@ -521,7 +524,7 @@ public class Query2Resource {
 			@PathParam("format") String format,
 			@FormParam("svg") @DefaultValue("") String svg)
 	{
-		
+
 		try {
 			CellDataSet cs = thinQueryService.getFormattedResult(queryName, format);
 			QueryResult qr = RestUtil.convert(cs);
@@ -536,7 +539,7 @@ public class Query2Resource {
 			return Response.serverError().entity(e.getMessage()).status(Status.INTERNAL_SERVER_ERROR).build();
 		}
 	}
-	
+
 	@POST
 	@Produces({"application/json" })
 	@Path("/{queryname}/drillacross")
@@ -548,18 +551,18 @@ public class Query2Resource {
 		if (log.isDebugEnabled()) {
 			log.debug("TRACK\t"  + "\t/query/" + queryName + "/drillacross\tPOST");
 		}
-		
+
 		try {
-				String[] positions = position.split(":");
-				List<Integer> cellPosition = new ArrayList<Integer>();
-				for (String p : positions) {
-					Integer pInt = Integer.parseInt(p);
-					cellPosition.add(pInt);
-				}
-				ObjectMapper mapper = new ObjectMapper();
-				Map<String, List<String>> levels = mapper.readValue(returns, TypeFactory.mapType(Map.class, TypeFactory.fromClass(String.class),  TypeFactory.collectionType(ArrayList.class, String.class)));
-				ThinQuery q = thinQueryService.drillacross(queryName, cellPosition, levels);
-				return q;
+			String[] positions = position.split(":");
+			List<Integer> cellPosition = new ArrayList<Integer>();
+			for (String p : positions) {
+				Integer pInt = Integer.parseInt(p);
+				cellPosition.add(pInt);
+			}
+			ObjectMapper mapper = new ObjectMapper();
+			Map<String, List<String>> levels = mapper.readValue(returns, TypeFactory.mapType(Map.class, TypeFactory.fromClass(String.class),  TypeFactory.collectionType(ArrayList.class, String.class)));
+			ThinQuery q = thinQueryService.drillacross(queryName, cellPosition, levels);
+			return q;
 
 		}
 		catch (Exception e) {
@@ -570,8 +573,8 @@ public class Query2Resource {
 		}
 	}
 
-	
 
-	
-	
+
+
+
 }

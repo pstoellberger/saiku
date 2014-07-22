@@ -190,7 +190,7 @@ public class OlapMetaExplorer {
 						for (Schema schema : cat.getSchemas()) {
 							if ((StringUtils.isBlank(cube.getSchema()) && StringUtils.isBlank(schema.getName())) || schema.getName().equals(cube.getSchema())) {
 								for (Cube cub : schema.getCubes()) {
-									if (cub.getName().equals(cube.getName()) || cub.getUniqueName().equals(cube.getUniqueName())) {
+									if (cub.getName().equals(cube.getName()) || cub.getUniqueName().equals(cube.getName())) {
 										return cub;
 									}
 								}

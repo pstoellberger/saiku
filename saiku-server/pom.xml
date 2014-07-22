@@ -110,6 +110,11 @@
 										<include name="foodmart.zip" />
 									</fileset>
 								</unzip>
+           						<unzip dest="target/dist/saiku-server/tomcat/webapps/saiku/WEB-INF/classes/saiku-repository/">
+									<fileset dir="${basedir}/../util/">
+										<include name="Examples.zip" />
+									</fileset>
+								</unzip>
 								<copy todir="target/dist/saiku-server/tomcat/webapps/saiku/WEB-INF/classes/saiku-datasources/" overwrite="true">
 									<fileset dir="${basedir}/../util/">
 										<include name="foodmart" />

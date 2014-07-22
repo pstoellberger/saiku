@@ -20,7 +20,6 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -41,11 +40,10 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -65,7 +63,6 @@ import org.saiku.web.rest.objects.acl.enumeration.AclMethod;
 import org.saiku.web.rest.objects.repository.IRepositoryObject;
 import org.saiku.web.rest.objects.repository.RepositoryFileObject;
 import org.saiku.web.rest.objects.repository.RepositoryFolderObject;
-import org.saiku.web.service.SessionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -244,12 +241,11 @@ public class BasicRepositoryResource2 implements ISaikuRepository {
 			else {
 				throw new Exception("File does not exist:" + repoFile.getName().getPath());
 			}
-		} catch(FileNotFoundException e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		} catch(Exception e){
 			log.error("Cannot load query (" + file + ")",e);
+			String error = ExceptionUtils.getRootCauseMessage(e);
+			throw new WebApplicationException(Response.serverError().entity(error).build());
 		}
-		return Response.serverError().build();
 	}
 	
 	/* (non-Javadoc)

@@ -25,6 +25,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.olap4j.Axis;
 import org.olap4j.OlapException;
+import org.olap4j.metadata.Cube;
 import org.olap4j.metadata.Dimension;
 import org.olap4j.metadata.Hierarchy;
 import org.olap4j.metadata.Level;
@@ -35,6 +36,7 @@ import org.olap4j.query.QueryAxis;
 import org.olap4j.query.QueryDimension;
 import org.olap4j.query.Selection;
 import org.saiku.olap.dto.SaikuAxis;
+import org.saiku.olap.dto.SaikuCube;
 import org.saiku.olap.dto.SaikuDimension;
 import org.saiku.olap.dto.SaikuDimensionSelection;
 import org.saiku.olap.dto.SaikuHierarchy;
@@ -51,6 +53,17 @@ import org.saiku.service.util.exception.SaikuServiceException;
 public class ObjectUtil {
 
 
+	public static SaikuCube convert(String connection, Cube c) {
+		SaikuCube sc= new SaikuCube(
+				connection,
+				c.getUniqueName(), 
+				c.getName(), 
+				c.getCaption(),
+				c.getSchema().getCatalog().getName(), 
+				c.getSchema().getName(),
+				c.isVisible());
+		return sc;
+	}
 	public static SaikuDimension convert(Dimension dim) {
 		SaikuDimension sDim = new SaikuDimension(
 				dim.getName(), 

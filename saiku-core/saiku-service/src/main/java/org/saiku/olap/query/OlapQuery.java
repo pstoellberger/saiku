@@ -486,6 +486,10 @@ public class OlapQuery implements IQuery {
 	public Map<String, String> getTotalFunctions() {
 		return totalsFunctions;
 	}
+	
+	public Query getQuery() {
+		return query;
+	}
 
 
 }

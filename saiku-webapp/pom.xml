@@ -48,6 +48,12 @@
 										<include name="foodmart.zip" />
 									</fileset>
 								</unzip>
+								<unzip
+									dest="target/${project.artifactId}-foodmart-${project.version}/WEB-INF/classes/saiku-repository">
+									<fileset dir="${basedir}/../util/">
+										<include name="Examples.zip" />
+									</fileset>
+								</unzip>
 								<copy
 									todir="target/${project.artifactId}-foodmart-${project.version}/WEB-INF/classes/foodmart/"
 									overwrite="true">

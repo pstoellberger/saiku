@@ -16,40 +16,40 @@ import org.saiku.query.mdx.IFilterFunction.MdxFunctionType;
 import org.saiku.query.mdx.NFilter;
 
 public class QueryConverter {
-	
+
 	public static SelectNode convert(Query query) throws Exception {
-		
+		org.saiku.query.Query sQuery = convertQuery(query);
+		return sQuery.getSelect();
+	}
+
+	public static org.saiku.query.Query convertQuery(Query query) throws Exception {
 		org.saiku.query.Query sQuery = new org.saiku.query.Query(query.getName(), query.getCube());
-		
+
 		for (QueryAxis axis : query.getAxes().values()) {
 			if (axis.getLocation() != null) {
 				org.saiku.query.QueryAxis sAxis = sQuery.getAxis(axis.getLocation());
 				convertAxis(axis, sAxis, sQuery);
 			}
-			
+
 		}
-		
-		
-		
-		
-		return sQuery.getSelect();
+		return sQuery;
 	}
 
 	private static void convertAxis(QueryAxis axis, org.saiku.query.QueryAxis sAxis, org.saiku.query.Query sQuery) throws Exception {
-		
+
 		for (QueryDimension qD : axis.getDimensions()) {
 			convertDimension(qD, sAxis, sQuery);
 		}
-		
+
 		if (axis.getSortOrder() != null) {
 			SortOrder so = SortOrder.valueOf(axis.getSortOrder().toString());
 			sAxis.sort(so, axis.getSortIdentifierNodeName());
 		}
-		
+
 		if (axis.getFilterCondition() != null) {
 			sAxis.addFilter(new GenericFilter(axis.getFilterCondition()));
 		}
-		
+
 		if (axis.getLimitFunction() != null) {
 			NFilter nf = new NFilter(MdxFunctionType.valueOf(
 					axis.getLimitFunction().toString()), 
@@ -57,12 +57,12 @@ public class QueryConverter {
 					axis.getLimitFunctionSortLiteral());
 			sAxis.addFilter(nf);
 		}
-		
+
 		sAxis.setNonEmpty(axis.isNonEmpty());
-		
-		
-		
-		
+
+
+
+
 	}
 
 	private static void convertDimension(QueryDimension qD, org.saiku.query.QueryAxis sAxis, org.saiku.query.Query sQuery) throws Exception {
@@ -76,11 +76,11 @@ public class QueryConverter {
 				} else {
 					hierarchyName = ((Level) sel.getRootElement()).getHierarchy().getUniqueName();
 				}
-				
+
 				qh = sQuery.getHierarchy(hierarchyName);
 				first = false;
 			}
-			
+
 			if (sel.getSelectionContext() != null) {
 				throw new SaikuIncompatibleException("Cannot convert queries with selection context");
 			}
@@ -95,7 +95,7 @@ public class QueryConverter {
 			}
 		}
 		sAxis.addHierarchy(qh);
-		
+
 	}
 
 }
