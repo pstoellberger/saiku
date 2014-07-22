@@ -22,6 +22,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.ws.rs.Consumes;
@@ -30,6 +31,7 @@ import javax.ws.rs.DefaultValue;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -45,9 +47,13 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.type.TypeFactory;
+import org.saiku.olap.dto.SaikuQuery;
 import org.saiku.olap.dto.SimpleCubeElement;
 import org.saiku.olap.dto.resultset.CellDataSet;
+import org.saiku.olap.query.IQuery;
 import org.saiku.olap.query2.ThinQuery;
+import org.saiku.olap.util.ObjectUtil;
 import org.saiku.olap.util.SaikuProperties;
 import org.saiku.service.olap.ThinQueryService;
 import org.saiku.service.util.exception.SaikuServiceException;
@@ -319,6 +325,43 @@ public class Query2Resource {
 		}
 	}
 	
+	@PUT
+	@Consumes("application/x-www-form-urlencoded")
+	@Path("/{queryname}/zoomin")
+	public ThinQuery zoomIn(
+			@PathParam("queryname") String queryName,
+			@FormParam("selections") String positionListString) {
+		try {
+
+			if (log.isDebugEnabled()) {
+				log.debug("TRACK\t"  + "\t/query/" + queryName + "/zoomIn\tPUT");
+			}
+			List<List<Integer>> realPositions = new ArrayList<List<Integer>>();
+			if (StringUtils.isNotBlank(positionListString)) {
+				ObjectMapper mapper = new ObjectMapper();
+				String[] positions = mapper.readValue(positionListString, TypeFactory.arrayType(String.class));
+				if (positions != null && positions.length > 0) {
+					for (String position : positions) {
+						String[] rPos = position.split(":");
+						List<Integer> cellPosition = new ArrayList<Integer>();
+	
+						for (String p : rPos) {
+							Integer pInt = Integer.parseInt(p);
+							cellPosition.add(pInt);
+						}
+						realPositions.add(cellPosition);
+					}
+				}
+			}
+			ThinQuery tq = thinQueryService.zoomIn(queryName, realPositions);
+			return tq;
+			
+		} catch (Exception e){
+			log.error("Cannot zoom in on query (" + queryName + ")",e);
+			throw new WebApplicationException(e);
+		}
+	}
+	
 	@GET
 	@Produces({"application/json" })
 	@Path("/{queryname}/drillthrough")
@@ -491,6 +534,39 @@ public class Query2Resource {
 		} catch (Exception e) {
 			log.error("Error exporting query to  PDF", e);
 			return Response.serverError().entity(e.getMessage()).status(Status.INTERNAL_SERVER_ERROR).build();
+		}
+	}
+	
+	@POST
+	@Produces({"application/json" })
+	@Path("/{queryname}/drillacross")
+	public ThinQuery drillacross(
+			@PathParam("queryname") String queryName, 
+			@FormParam("position") String position,
+			@FormParam("drill") String returns)
+	{
+		if (log.isDebugEnabled()) {
+			log.debug("TRACK\t"  + "\t/query/" + queryName + "/drillacross\tPOST");
+		}
+		
+		try {
+				String[] positions = position.split(":");
+				List<Integer> cellPosition = new ArrayList<Integer>();
+				for (String p : positions) {
+					Integer pInt = Integer.parseInt(p);
+					cellPosition.add(pInt);
+				}
+				ObjectMapper mapper = new ObjectMapper();
+				Map<String, List<String>> levels = mapper.readValue(returns, TypeFactory.mapType(Map.class, TypeFactory.fromClass(String.class),  TypeFactory.collectionType(ArrayList.class, String.class)));
+				ThinQuery q = thinQueryService.drillacross(queryName, cellPosition, levels);
+				return q;
+
+		}
+		catch (Exception e) {
+			log.error("Cannot execute query (" + queryName + ")",e);
+			String error = ExceptionUtils.getRootCauseMessage(e);
+			throw new WebApplicationException(Response.serverError().entity(error).build());
+
 		}
 	}
 
