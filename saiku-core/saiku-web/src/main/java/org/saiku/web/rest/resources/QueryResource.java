@@ -15,6 +15,7 @@
  */
 package org.saiku.web.rest.resources;
 
+import java.io.InputStream;
 import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -47,6 +48,7 @@ import javax.ws.rs.core.Response.Status;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.codehaus.jackson.annotate.JsonAutoDetect.Visibility;
@@ -69,6 +71,7 @@ import org.saiku.olap.util.formatter.ICellSetFormatter;
 import org.saiku.service.olap.OlapDiscoverService;
 import org.saiku.service.olap.OlapQueryService;
 import org.saiku.service.util.exception.SaikuServiceException;
+import org.saiku.web.export.JSConverter;
 import org.saiku.web.export.PdfReport;
 import org.saiku.web.rest.objects.MdxQueryObject;
 import org.saiku.web.rest.objects.SavedQuery;
@@ -435,6 +438,51 @@ public class QueryResource {
 			return Response.serverError().entity(e.getMessage()).status(Status.INTERNAL_SERVER_ERROR).build();
 		}
 	}
+	
+	@GET
+	@Produces({"text/html" })
+	@Path("/{queryname}/export/html/{format}")
+	public Response exportHtml(
+			@PathParam("queryname")  String queryName,
+			@PathParam("format") String format,
+			@QueryParam("css") @DefaultValue("false") Boolean css,
+			@QueryParam("tableonly") @DefaultValue("false") Boolean tableonly,
+			@QueryParam("wrapcontent") @DefaultValue("true") Boolean wrapcontent)
+	{
+		
+		try {
+			CellDataSet cs = null;
+			if (StringUtils.isNotBlank(format)) {
+				cs = olapQueryService.execute(queryName, format);
+			} else {
+				cs = olapQueryService.execute(queryName);
+			}
+			QueryResult qr = RestUtil.convert(cs);
+			String content = JSConverter.convertToHtml(qr, wrapcontent);
+			String html = "";
+			if (!tableonly) {
+				html += "<!DOCTYPE html><html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n";
+				if (css) {
+					html += "<style>\n";
+					InputStream is = JSConverter.class.getResourceAsStream("saiku.table.full.css");
+					String cssContent = IOUtils.toString(is);
+					html += cssContent;
+					html += "</style>\n";
+				}
+				html += "</head>\n<body><div class='workspace_results'>\n";
+			}
+			html += content;
+			if (!tableonly) {
+				html += "\n</div></body></html>";
+			}
+			return Response.ok(html).build();
+		} catch (Exception e) {
+			log.error("Error exporting query to  HTML", e);
+			return Response.serverError().entity(e.getMessage()).status(Status.INTERNAL_SERVER_ERROR).build();
+		}
+	}
+	
+	
 
 	@DELETE
 	@Path("/{queryname}/result")

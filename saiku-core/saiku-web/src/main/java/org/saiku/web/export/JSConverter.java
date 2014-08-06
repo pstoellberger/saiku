@@ -12,8 +12,8 @@ import org.mozilla.javascript.ScriptableObject;
 import org.saiku.web.rest.objects.resultset.QueryResult;
 
 public class JSConverter {
-	
-	public static String convertToHtml(QueryResult qr) throws IOException {
+
+	public static String convertToHtml(QueryResult qr, boolean wrapcontent) throws IOException {
 		ObjectMapper om = new ObjectMapper();
 		StringWriter sw = new StringWriter();
 		Context context = Context.enter();
@@ -28,17 +28,22 @@ public class JSConverter {
 		String data = om.writeValueAsString(qr);
 		Object wrappedQr = Context.javaToJS(data, globalScope);
 		ScriptableObject.putProperty(globalScope, "data", wrappedQr);
-		
+
 		Object wrappedOut = Context.javaToJS(sw, globalScope);
 		ScriptableObject.putProperty(globalScope, "out", wrappedOut);
-		
-		String code = "eval('var cellset = ' + data); \nvar renderer = new SaikuTableRenderer(); \nvar html = renderer.render(cellset, { wrapContent : false }); out.write(html);";
-		
+
+		String code = "eval('var cellset = ' + data); \nvar renderer = new SaikuTableRenderer(); \nvar html = renderer.render(cellset, { wrapContent : " + wrapcontent + " }); out.write(html);";
+
 		context.evaluateString(globalScope, code, "<mem>", 1, null);
 		Context.exit();
-		
+
 		String content = sw.toString();
 		return content;
+
+	}
+
+	public static String convertToHtml(QueryResult qr) throws IOException {
+		return convertToHtml(qr, false);
 	}
 
 }

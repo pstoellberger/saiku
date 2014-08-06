@@ -113,7 +113,7 @@ public class PdfReport {
 			Long rhino = (new Date()).getTime();	            
             // CSS
             CSSResolver cssResolver = new StyleAttrCSSResolver();
-            CssFile cssFile = XMLWorkerHelper.getCSS(getClass().getResourceAsStream("saiku.table.css"));
+            CssFile cssFile = XMLWorkerHelper.getCSS(getClass().getResourceAsStream("saiku.table.pdf.css"));
             cssResolver.addCss(cssFile);
             // HTML
             XMLWorkerFontProvider fontProvider = new XMLWorkerFontProvider();
