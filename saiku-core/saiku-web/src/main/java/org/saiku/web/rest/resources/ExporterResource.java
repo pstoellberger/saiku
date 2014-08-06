@@ -238,8 +238,21 @@ public class ExporterResource {
 			String fileContent = new String( (byte[]) f.getEntity());
 			fileContent = ServletUtil.replaceParameters(servletRequest, fileContent);
 			String queryName = UUID.randomUUID().toString();
-			queryResource.createQuery(null,  null,  null, null, fileContent, queryName, null);
-			return queryResource.exportHtml(queryName, formatter, css, tableonly, wrapcontent);
+			Map<String, String> parameters = ServletUtil.getParameters(servletRequest);
+			ThinQuery tq = query2Resource.createQuery(queryName, fileContent, null, null);
+			if (parameters != null) {
+				tq.getParameters().putAll(parameters);
+			}
+			if (StringUtils.isNotBlank(formatter)) {
+				HashMap<String, Object> p = new HashMap<String, Object>();
+				p.put("saiku.olap.result.formatter", formatter);
+				if (tq.getProperties() == null) {
+					tq.setProperties(p);
+				} else {
+					tq.getProperties().putAll(p);
+				}
+			}
+			return query2Resource.exportHtml(tq, formatter, css, tableonly, wrapcontent);
 		} catch (Exception e) {
 			log.error("Error exporting JSON for file: " + file, e);
 			return Response.serverError().entity(e.getMessage()).status(Status.INTERNAL_SERVER_ERROR).build();
