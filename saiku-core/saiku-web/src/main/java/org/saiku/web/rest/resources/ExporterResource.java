@@ -222,6 +222,29 @@ public class ExporterResource {
 			return Response.serverError().entity(e.getMessage()).status(Status.INTERNAL_SERVER_ERROR).build();
 		}
 	}
+	
+	@GET
+	@Produces({"text/html" })
+	@Path("/saiku/html")
+	public Response exportHtml(@QueryParam("file") String file, 
+			@QueryParam("formatter") String formatter,
+			@QueryParam("css") @DefaultValue("false") Boolean css,
+			@QueryParam("tableonly") @DefaultValue("false") Boolean tableonly,
+			@QueryParam("wrapcontent") @DefaultValue("true") Boolean wrapcontent,
+			@Context HttpServletRequest servletRequest) 
+	{
+		try {
+			Response f = repository.getResource(file);
+			String fileContent = new String( (byte[]) f.getEntity());
+			fileContent = ServletUtil.replaceParameters(servletRequest, fileContent);
+			String queryName = UUID.randomUUID().toString();
+			queryResource.createQuery(null,  null,  null, null, fileContent, queryName, null);
+			return queryResource.exportHtml(queryName, formatter, css, tableonly, wrapcontent);
+		} catch (Exception e) {
+			log.error("Error exporting JSON for file: " + file, e);
+			return Response.serverError().entity(e.getMessage()).status(Status.INTERNAL_SERVER_ERROR).build();
+		}
+	}
 
 	@POST
 	@Produces({"image/*" })
