@@ -543,7 +543,7 @@ public class Query2Resource {
 		}
 	}
 	
-	@POST
+	@GET
 	@Produces({"text/html" })
 	@Path("/{queryname}/export/html")
 	public Response exportHtml(
