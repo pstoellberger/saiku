@@ -262,19 +262,21 @@ public class ExcelWorksheetBuilder {
         cell.setCellValue("Filter Applied");
         row++;
 
-        for (ThinHierarchy item : queryFilters) {
-            for (ThinLevel s : item.getLevels().values()) {
-            	for (ThinMember i : s.getSelection().getMembers()) {
-	                sheetRow = summarySheet.createRow((short) row);
-	                cell = sheetRow.createCell(0);
-	                cell.setCellValue(item.getCaption());
-	                cell = sheetRow.createCell(1);
-	                cell.setCellValue(s.getCaption());
-	                cell = sheetRow.createCell(2);
-	                cell.setCellValue(i.getCaption());
-	                row++;
+        if (queryFilters != null) {
+	        for (ThinHierarchy item : queryFilters) {
+	            for (ThinLevel s : item.getLevels().values()) {
+	            	for (ThinMember i : s.getSelection().getMembers()) {
+		                sheetRow = summarySheet.createRow((short) row);
+		                cell = sheetRow.createCell(0);
+		                cell.setCellValue(item.getCaption());
+		                cell = sheetRow.createCell(1);
+		                cell.setCellValue(s.getCaption());
+		                cell = sheetRow.createCell(2);
+		                cell.setCellValue(i.getCaption());
+		                row++;
+		            }
 	            }
-            }
+	        }
         }
 
         row += 2;
