@@ -35,6 +35,7 @@ import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.ui.WebAuthenticationDetails;
 import org.springframework.security.userdetails.User;
+import org.springframework.security.userdetails.ldap.LdapUserDetails;
 
 
 public class PentahoSessionService implements ISessionService {
@@ -84,8 +85,10 @@ public class PentahoSessionService implements ISessionService {
 			User u = (User) key;
 			username = u.getUsername();
 		}
+		else if (key instanceof LdapUserDetails)
+			username = ((LdapUserDetails) key).getUsername();
 		else {
-			username = "existinguser";
+			username = SecurityContextHolder.getContext().getAuthentication().getName();
 		}
 		sessionHolder.get(key).put("username", username);
 	}

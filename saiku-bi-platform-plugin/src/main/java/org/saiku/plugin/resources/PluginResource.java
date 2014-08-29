@@ -127,7 +127,7 @@ public class PluginResource {
 
 
 	@GET
-	@Produces({"text/plain" })
+	@Produces({"application/javascript" })
 	@Path("/plugins")
 	public String getPlugins(@QueryParam("debug") @DefaultValue("false") Boolean debug) 
 	{
