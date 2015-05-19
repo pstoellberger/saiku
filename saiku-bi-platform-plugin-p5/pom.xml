@@ -75,19 +75,19 @@
 								<artifactItem>
 									<groupId>pentaho</groupId>
 									<artifactId>mondrian</artifactId>
-									<version>3.6.5</version>
+                                    <version>3.9.0.2</version>
 									<outputDirectory>target/dist/saiku/lib</outputDirectory>
 								</artifactItem>
 								<artifactItem>
 									<groupId>org.olap4j</groupId>
 									<artifactId>olap4j-xmla</artifactId>
-									<version>1.2.0-SNAPSHOT</version>
+									<version>1.2.0</version>
 									<outputDirectory>target/dist/saiku/lib</outputDirectory>
 								</artifactItem>
 								<artifactItem>
 									<groupId>org.olap4j</groupId>
 									<artifactId>olap4j</artifactId>
-									<version>1.2.0-SNAPSHOT</version>
+									<version>1.2.0</version>
 									<outputDirectory>target/dist/saiku/lib</outputDirectory>
 								</artifactItem>
 								<artifactItem>
@@ -130,13 +130,13 @@
 								<artifactItem>
 									<groupId>pentaho</groupId>
 									<artifactId>cpf-core</artifactId>
-									<version>REFACTOR-SNAPSHOT</version>
+                                    <version>5.2.0.0-209</version>
 									<outputDirectory>target/dist/saiku/lib</outputDirectory>
 								</artifactItem>
 								<artifactItem>
 									<groupId>pentaho</groupId>
 									<artifactId>cpf-pentaho5</artifactId>
-									<version>REFACTOR-SNAPSHOT</version>
+                                    <version>5.2.0.0-209</version>
 									<outputDirectory>target/dist/saiku/lib</outputDirectory>
 								</artifactItem>
 								<artifactItem>
@@ -235,16 +235,19 @@
 		</plugins>
 	</build>
 	<repositories>
-		<repository>
-			<id>pentaho-repo</id>
-			<name>pentaho repository</name>
-			<url>http://repository.pentaho.org/artifactory/pentaho</url>
-		</repository>
-		<repository>
-			<id>pentaho-third-party</id>
-			<url>http://repo.pentaho.org/artifactory/third-party/</url>
-		</repository>
-                <repository>
+        <repository>
+            <id>pentaho-third-party</id>
+            <url>http://nexus.pentaho.org/content/repositories/proxied-3rd-party-releases/</url>
+        </repository>
+        <repository>
+            <id>pentaho-public-release</id>
+            <url>http://nexus.pentaho.org/content/repositories/pentaho-public-release-repos/</url>
+        </repository>
+        <repository>
+            <id>pentaho-snapshot</id>
+            <url>http://nexus.pentaho.org/content/repositories/public-snapshots/</url>
+        </repository>
+        <repository>
 			<id>alabs-repo</id>
 			<name>alabs repository</name>
 			<url>http://repo.analytical-labs.com/repo/</url>
@@ -280,57 +283,45 @@
 			<artifactId>saiku-olap-util</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>pentaho</groupId>
-			<artifactId>cpf-core</artifactId>
-			<version>REFACTOR-SNAPSHOT</version>
-			<exclusions>
-			<exclusion>
-					<groupId>janino</groupId>
-					<artifactId>janino</artifactId>
-			</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>pentaho</groupId>
-			<artifactId>cpf-pentaho5</artifactId>
-			<version>REFACTOR-SNAPSHOT</version>
-			<exclusions>
-				<exclusion>
-					<groupId>pentaho</groupId>
-					<artifactId>pentaho-user-console-package</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>janino</groupId>
-					<artifactId>janino</artifactId>
-				</exclusion>
-				                <exclusion>
-					<groupId>pentaho-kettle</groupId>
-					<artifactId>kettle-ui-swt</artifactId>
+        <dependency>
+            <groupId>pentaho</groupId>
+            <artifactId>cpf-core</artifactId>
+            <version>5.2.0.0-209</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>janino</groupId>
+                    <artifactId>janino</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>pentaho</groupId>
+            <artifactId>cpf-pentaho5</artifactId>
+            <version>5.2.0.0-209</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>pentaho</groupId>
+                    <artifactId>pentaho-user-console-package</artifactId>
                 </exclusion>
                 <exclusion>
-                	<groupId>pentaho</groupId>
-                	<artifactId>pentaho-platform-extensions</artifactId>
+                    <groupId>janino</groupId>
+                    <artifactId>janino</artifactId>
                 </exclusion>
-				
-			</exclusions>
-		</dependency>
-<!-- 
-		<dependency>
-			<groupId>pentaho</groupId>
-			<artifactId>cda</artifactId>
-			<version>TRUNK-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-		 	<groupId>pentaho-library</groupId>
-  			<artifactId>libloader</artifactId>
-  			<version>${pentaho.platform.version}</version>
-		</dependency>
--->
+                <exclusion>
+                    <groupId>pentaho-kettle</groupId>
+                    <artifactId>kettle-ui-swt</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>pentaho</groupId>
+                    <artifactId>pentaho-platform-extensions</artifactId>
+                </exclusion>
+                
+            </exclusions>
+        </dependency>
 		<dependency>
 			<groupId>pentaho</groupId>
 			<artifactId>mondrian</artifactId>
-			<version>3.6.5</version>
+            <version>3.9.0.2</version>
 		</dependency>
 		<dependency>
 			<groupId>eigenbase</groupId>
@@ -350,7 +341,7 @@
 		<dependency>
 			<groupId>org.olap4j</groupId>
 			<artifactId>olap4j-xmla</artifactId>
-			<version>1.2.0-SNAPSHOT</version>
+			<version>1.2.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>

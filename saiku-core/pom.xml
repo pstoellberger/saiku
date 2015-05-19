@@ -21,20 +21,22 @@
 		<module>saiku-web</module>
 	</modules>
 	<repositories>
-<repository>
-                        <id>pentaho-third-party</id>
-                        <url>http://repo.pentaho.org/artifactory/third-party/</url>
+        <repository>
+            <id>pentaho-third-party</id>
+            <url>http://nexus.pentaho.org/content/repositories/proxied-3rd-party-releases/</url>
         </repository>
-	<repository>
+        <repository>
+            <id>pentaho-public-release</id>
+            <url>http://nexus.pentaho.org/content/repositories/pentaho-public-release-repos/</url>
+        </repository>
+        <repository>
+            <id>pentaho-snapshot</id>
+            <url>http://nexus.pentaho.org/content/repositories/public-snapshots/</url>
+        </repository>
+        <repository>
                         <id>codehaus</id>
                         <url>http://repository.codehaus.org/</url>
         </repository>
-		
-<repository>
-			<id>pentaho-repo</id>
-			<name>pentaho repository</name>
-			<url>http://repository.pentaho.org/artifactory/pentaho</url>
-		</repository>
 		<repository>
 			<id>Analytical Labs Repo</id>
 			<name>Analytical Labs Repo-releases</name>

@@ -62,10 +62,10 @@ public class StatisticsResource {
 			final Monitor monitor = mondrianServer.getMonitor();
 	        final ServerInfo server = monitor.getServer();
 	        
-	        int statementCurrentlyOpenCount = server.statementCurrentlyOpenCount();
-	        int connectionCurrentlyOpenCount = server.connectionCurrentlyOpenCount();
-	        int sqlStatementCurrentlyOpenCount = server.sqlStatementCurrentlyOpenCount();
-	        int statementCurrentlyExecutingCount = server.statementCurrentlyExecutingCount();
+	        int statementCurrentlyOpenCount = server.statementEndCount - server.statementStartCount;
+	        int connectionCurrentlyOpenCount = server.connectionEndCount - server.connectionStartCount;
+	        int sqlStatementCurrentlyOpenCount = server.sqlStatementEndCount - server.sqlStatementStartCount;
+	        int statementCurrentlyExecutingCount = server.statementEndCount - server.statementStartCount;
 	        float avgCellDimensionality =  ((float) server.cellCoordinateCount / (float) server.cellCount);
 	        
 	        final List<ConnectionInfo> connections = monitor.getConnections();
