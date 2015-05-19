@@ -130,13 +130,13 @@
 								<artifactItem>
 									<groupId>pentaho</groupId>
 									<artifactId>cpf-core</artifactId>
-                                    <version>5.2.0.0-209</version>
+									<version>REFACTOR-SNAPSHOT</version>
 									<outputDirectory>target/dist/saiku/lib</outputDirectory>
 								</artifactItem>
 								<artifactItem>
 									<groupId>pentaho</groupId>
 									<artifactId>cpf-pentaho5</artifactId>
-                                    <version>5.2.0.0-209</version>
+									<version>REFACTOR-SNAPSHOT</version>
 									<outputDirectory>target/dist/saiku/lib</outputDirectory>
 								</artifactItem>
 								<artifactItem>
@@ -248,10 +248,15 @@
             <url>http://nexus.pentaho.org/content/repositories/public-snapshots/</url>
         </repository>
         <repository>
-			<id>alabs-repo</id>
-			<name>alabs repository</name>
-			<url>http://repo.analytical-labs.com/repo/</url>
-		</repository>
+            <id>Analytical Labs Repo</id>
+            <name>Analytical Labs Repo-releases</name>
+            <url>http://repo.analytical-labs.com/artifactory/alabs-release-local</url>
+        </repository>
+        <repository>
+            <id>Analytical Labs snapshots</id>
+            <name>Analytical Labs Repo-releases</name>
+            <url>http://repo.analytical-labs.com/artifactory/alabs-snapshot-local</url>
+        </repository>
 		<repository>
 			<id>ibiblio</id>
 			<url>http://ibiblio.org/maven2/</url>
@@ -283,41 +288,53 @@
 			<artifactId>saiku-olap-util</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-        <dependency>
-            <groupId>pentaho</groupId>
-            <artifactId>cpf-core</artifactId>
-            <version>5.2.0.0-209</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>janino</groupId>
-                    <artifactId>janino</artifactId>
+		<dependency>
+			<groupId>pentaho</groupId>
+			<artifactId>cpf-core</artifactId>
+			<version>REFACTOR-SNAPSHOT</version>
+			<exclusions>
+			<exclusion>
+					<groupId>janino</groupId>
+					<artifactId>janino</artifactId>
+			</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>pentaho</groupId>
+			<artifactId>cpf-pentaho5</artifactId>
+			<version>REFACTOR-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<groupId>pentaho</groupId>
+					<artifactId>pentaho-user-console-package</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>janino</groupId>
+					<artifactId>janino</artifactId>
+				</exclusion>
+				                <exclusion>
+					<groupId>pentaho-kettle</groupId>
+					<artifactId>kettle-ui-swt</artifactId>
                 </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>pentaho</groupId>
-            <artifactId>cpf-pentaho5</artifactId>
-            <version>5.2.0.0-209</version>
-            <exclusions>
                 <exclusion>
-                    <groupId>pentaho</groupId>
-                    <artifactId>pentaho-user-console-package</artifactId>
+                	<groupId>pentaho</groupId>
+                	<artifactId>pentaho-platform-extensions</artifactId>
                 </exclusion>
-                <exclusion>
-                    <groupId>janino</groupId>
-                    <artifactId>janino</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>pentaho-kettle</groupId>
-                    <artifactId>kettle-ui-swt</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>pentaho</groupId>
-                    <artifactId>pentaho-platform-extensions</artifactId>
-                </exclusion>
-                
-            </exclusions>
-        </dependency>
+				
+			</exclusions>
+		</dependency>
+<!-- 
+		<dependency>
+			<groupId>pentaho</groupId>
+			<artifactId>cda</artifactId>
+			<version>TRUNK-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+		 	<groupId>pentaho-library</groupId>
+  			<artifactId>libloader</artifactId>
+  			<version>${pentaho.platform.version}</version>
+		</dependency>
+-->
 		<dependency>
 			<groupId>pentaho</groupId>
 			<artifactId>mondrian</artifactId>
