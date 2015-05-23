@@ -286,6 +286,12 @@ public class Fat {
 							String startDate =  lvl.getHierarchy().getUniqueName() + "." + format.format(startC.getTime());
 							resolvedStartExpr = startDate; 
 							resolvedEndExpr = currDate;
+						} else if (SaikuDictionary.DateFlag.CURRENTYEAR.toString().equals(flag.toUpperCase())) {
+							Calendar startC = Calendar.getInstance(SaikuProperties.locale);
+							startC.set(Calendar.DAY_OF_YEAR, 1);
+							String startDate =  lvl.getHierarchy().getUniqueName() + "." + format.format(startC.getTime());
+							resolvedStartExpr = startDate; 
+							resolvedEndExpr = currDate;
 						} else if (SaikuDictionary.DateFlag.LASTMONTH.toString().equals(flag.toUpperCase())) {
 							Calendar startC = Calendar.getInstance(SaikuProperties.locale);
 							startC.add(Calendar.MONTH, - 1);
@@ -301,6 +307,15 @@ public class Fat {
 							startC.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
 							String startDate = lvl.getHierarchy().getUniqueName() + "." + format.format(startC.getTime());
 							startC.add(Calendar.DATE, 6);
+							String endDate = lvl.getHierarchy().getUniqueName() + "." + format.format(startC.getTime());
+							resolvedStartExpr = startDate;
+							resolvedEndExpr = endDate;
+						} else if (SaikuDictionary.DateFlag.LASTYEAR.toString().equals(flag.toUpperCase())) {
+							Calendar startC = Calendar.getInstance(SaikuProperties.locale);
+							startC.add(Calendar.YEAR, - 1);
+							startC.set(Calendar.DAY_OF_YEAR, 1);
+							String startDate = lvl.getHierarchy().getUniqueName() + "." + format.format(startC.getTime());
+							startC.set(Calendar.DAY_OF_YEAR, startC.getActualMaximum(Calendar.DAY_OF_YEAR));
 							String endDate = lvl.getHierarchy().getUniqueName() + "." + format.format(startC.getTime());
 							resolvedStartExpr = startDate;
 							resolvedEndExpr = endDate;

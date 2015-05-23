@@ -10,8 +10,11 @@ public class SaikuDictionary {
 		AGO,
 		CURRENTWEEK,
 		LASTWEEK,
+		LAST7,
 		CURRENTMONTH,
-		LASTMONTH
+		LASTMONTH,
+		CURRENTYEAR,
+		LASTYEAR
 	};
 	
 	public final static String DateFlags = "DateFlags"; 
