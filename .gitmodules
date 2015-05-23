@@ -1,3 +1,6 @@
 [submodule "saiku-ui"]
 	path = saiku-ui
 	url = git://github.com/pstoellberger/saiku-ui.git
+[submodule "saiku-query"]
+	path = saiku-query
+	url = git://github.com/pstoellberger/saiku-query.git
