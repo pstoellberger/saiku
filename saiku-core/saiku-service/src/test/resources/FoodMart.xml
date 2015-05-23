@@ -50,11 +50,17 @@
     <Hierarchy hasAll="false" primaryKey="time_id">
       <Table name="time_by_day"/>
       <Level name="Year" column="the_year" type="Numeric" uniqueMembers="true"
-          levelType="TimeYears"/>
+          levelType="TimeYears">
+          <Annotations><Annotation name="AnalyzerDateFormat">[yyyy]</Annotation></Annotations>
+      </Level>
       <Level name="Quarter" column="quarter" uniqueMembers="false"
-          levelType="TimeQuarters"/>
+          levelType="TimeQuarters">
+          <Annotations><Annotation name="AnalyzerDateFormat">[yyyy].[Qq]</Annotation></Annotations>
+      </Level>
       <Level name="Month" column="month_of_year" uniqueMembers="false" type="Numeric"
-          levelType="TimeMonths"/>
+          levelType="TimeMonths">
+          <Annotations><Annotation name="SaikuDayFormat">[yyyy].[Qq].[mm]</Annotation></Annotations>
+      </Level>
     </Hierarchy>
     <Hierarchy hasAll="true" name="Weekly" primaryKey="time_id">
       <Table name="time_by_day"/>

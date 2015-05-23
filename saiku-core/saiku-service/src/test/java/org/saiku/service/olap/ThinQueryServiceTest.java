@@ -6,6 +6,8 @@ import static org.junit.Assert.fail;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs.FileObject;
@@ -21,14 +23,19 @@ import org.olap4j.metadata.Cube;
 import org.olap4j.metadata.Measure;
 import org.saiku.TestSaikuContext;
 import org.saiku.olap.dto.SaikuCube;
+import org.saiku.olap.query2.ThinHierarchy;
 import org.saiku.olap.query2.ThinLevel;
+import org.saiku.olap.query2.ThinMember;
 import org.saiku.olap.query2.ThinQuery;
 import org.saiku.olap.query2.ThinQueryModel.AxisLocation;
+import org.saiku.olap.query2.ThinSelection;
+import org.saiku.olap.query2.ThinSelection.Type;
 import org.saiku.olap.query2.util.Fat;
 import org.saiku.olap.query2.util.Thin;
 import org.saiku.query.Query;
 import org.saiku.query.QueryAxis;
 import org.saiku.query.QueryHierarchy;
+import org.saiku.query.QueryLevel;
 import org.saiku.query.SortOrder;
 import org.saiku.query.mdx.IFilterFunction.MdxFunctionType;
 import org.saiku.query.mdx.NFilter;
@@ -124,16 +131,16 @@ public class ThinQueryServiceTest {
 
 			String expectedMdx = 
 					"WITH\n"
-			                + "SET [~COLUMNS_Product] AS\n"
+			                + "SET [~COLUMNS_Product_Product] AS\n"
 			                + "    TopCount(Except({[Product].[Product Family].Members}, {[Product].[Non-Consumable]}), 2, Measures.[Unit Sales])\n"
-			                + "SET [~COLUMNS_Education Level] AS\n"
+			                + "SET [~COLUMNS_Education Level_Education Level] AS\n"
 			                + "    {[Education Level].[Education Level].Members}\n"
 			                + "MEMBER [Measures].[Double Profit] AS\n"
 			                + "    (([Measures].[Store Sales] - [Measures].[Store Cost]) * 2)\n"
 			                + "SET [~ROWS] AS\n"
 			                + "    {[Gender].[F]}\n"
 			                + "SELECT\n"
-			                + "CrossJoin(Order(CrossJoin([~COLUMNS_Product], [~COLUMNS_Education Level]), [Measures].[Double Profit], BDESC), {[Measures].[Double Profit], [Measures].[Unit Sales]}) ON COLUMNS,\n"
+			                + "CrossJoin(Order(CrossJoin([~COLUMNS_Product_Product], [~COLUMNS_Education Level_Education Level]), [Measures].[Double Profit], BDESC), {[Measures].[Double Profit], [Measures].[Unit Sales]}) ON COLUMNS,\n"
 			                + "[~ROWS] ON ROWS\n"
 			                + "FROM [Sales]";
 			
@@ -247,6 +254,76 @@ public class ThinQueryServiceTest {
 
 			cs = tqs.executeInternalQuery(tq);
 			assertEquals("[ COLUMNS: 5 ][ ROWS: 1 ]", getResultInfo(cs));
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail();
+		}
+
+
+	}
+	
+	@Test
+	public void testRangeExp() {
+
+		try {
+			SaikuCube c = TestSaikuContext.getSalesCube();
+			Cube cub = ods.getNativeCube(c);
+			String name = "rangeExp";
+			Query query = new Query(name, cub);
+			QueryAxis columns = query.getAxis(Axis.COLUMNS);
+			QueryAxis rows = query.getAxis(Axis.ROWS);
+			QueryHierarchy products = query.getHierarchy("[Product]");
+			products.includeLevel("Product Family");
+			products.excludeMember("[Product].[Non-Consumable]");
+			rows.addHierarchy(products);
+
+			QueryHierarchy time = query.getHierarchy("[Time]");
+			
+			
+			QueryLevel yearLevel = time.includeLevel("Year");	
+
+			
+			columns.addHierarchy(time);
+
+			ThinQuery tq = Thin.convert(query, c);
+			ThinHierarchy th = tq.getQueryModel().getAxis(AxisLocation.COLUMNS).getHierarchy("[Time]"); 
+			ThinLevel tl = th.getLevel("Year");
+			ThinSelection sl = tl.getSelection();
+			sl.setType(Type.RANGE);
+			ThinMember ts = new ThinMember(null, "[Time].[1998].Lag(1)", null);
+			ThinMember te = new ThinMember(null, "[Time].[1998]", null);
+			List<ThinMember> ranges = new ArrayList<ThinMember>();
+			ranges.add(ts);
+			ranges.add(te);
+			sl.setMembers(ranges);
+
+			Query q = Fat.convert(tq, cub);
+			ThinQuery thinModQ = Thin.convert(q, c);
+
+			yearLevel.setRangeExpressions("[Time].[1998].Lag(1)", "[Time].[1998]");
+			ThinQuery fatModQ = Thin.convert(query, c);
+			
+			ObjectMapper om = new ObjectMapper();
+			
+			String first = om.defaultPrettyPrintingWriter().writeValueAsString(thinModQ);
+			String second = om.defaultPrettyPrintingWriter().writeValueAsString(fatModQ);
+			
+			assertEquals(first, second);
+			compareQuery(name, first);
+			
+			ThinMember last = new ThinMember(null, "F:LAST", null);
+			//ThinMember cur = new ThinMember(null, "F:CURRENT", null);
+			
+			ranges.clear();
+			//ranges.add(cur);
+			ranges.add(last);
+			sl.setMembers(ranges);
+			
+			
+			q = Fat.convert(tq, cub);
+			ThinQuery dateFlags = Thin.convert(q, c);
+			String third = om.defaultPrettyPrintingWriter().writeValueAsString(dateFlags);
 
 		} catch (Exception e) {
 			e.printStackTrace();

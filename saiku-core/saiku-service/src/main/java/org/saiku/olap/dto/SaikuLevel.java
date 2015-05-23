@@ -15,60 +15,76 @@
  */
 package org.saiku.olap.dto;
 
+import java.util.Map;
+
 public class SaikuLevel extends AbstractSaikuObject {
-	
+
 	private String caption;
 	private String hierarchyUniqueName;
 	private String dimensionUniqueName;
-//	private transient List<SaikuMember> members;
 	private boolean visible;
 	private String description;
 	
+	private String levelType;
+	//private final Map<String, String> annotations;
+	private final Map<String, Object> flags;
+
 	public SaikuLevel() {
-		super(null,null);
+		super(null, null);
 		throw new RuntimeException("Unsupported Constructor. Serialization only");
 	}
 
-	
+
 	public SaikuLevel(
-			String name, 
-			String uniqueName, 
-			String caption, 
+			String name,
+			String uniqueName,
+			String caption,
 			String description,
-			String dimensionUniqueName, 
-			String hierarchyUniqueName, 
-			boolean visible) 
-	{
-		super(uniqueName,name);
+			String dimensionUniqueName,
+			String hierarchyUniqueName,
+			boolean visible,
+			String levelType,
+			Map<String, Object> flags) {
+		super(uniqueName, name);
 		this.caption = caption;
 		this.hierarchyUniqueName = hierarchyUniqueName;
 		this.dimensionUniqueName = dimensionUniqueName;
 		this.visible = visible;
 		this.description = description;
-//		this.members = members;
+		this.flags = flags;		
+		//this.annotations = annotations;
+		this.levelType = levelType;
 	}
 
 	public String getCaption() {
 		return caption;
 	}
-	
+
 	public String getHierarchyUniqueName() {
 		return hierarchyUniqueName;
 	}
-	
+
 	public String getDimensionUniqueName() {
 		return dimensionUniqueName;
 	}
-	
+
 	public boolean isVisible() {
 		return visible;
 	}
-	
+
 	public String getDescription() {
 		return description;
 	}
 	
-//	public List<SaikuMember> getMembers() {
-//		return members;
-//	}
+	//public Map<String, String> getAnnotations() {
+	//	return annotations;
+	//}
+	
+	public Map<String, Object> getFlags() {
+		return flags;
+	}
+	
+	public String getLevelType() {
+		return levelType;
+	}
 }

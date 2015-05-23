@@ -73,6 +73,10 @@ public class PentahoDatasourceManager implements IDatasourceManager {
 	public void setDynamicSchemaProcessor(String dynamicSchemaProcessor) {
 		this.dynamicSchemaProcessor = dynamicSchemaProcessor;
 	}
+	
+	public void setSession(IPentahoSession session) {
+		this.session = session;
+	}
 
 	public PentahoDatasourceManager() {
 	}

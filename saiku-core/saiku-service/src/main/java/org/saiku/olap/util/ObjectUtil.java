@@ -20,7 +20,12 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import mondrian.olap.Annotation;
+import mondrian.olap4j.SaikuMondrianHelper;
 
 import org.apache.commons.lang.StringUtils;
 import org.olap4j.Axis;
@@ -48,6 +53,7 @@ import org.saiku.olap.dto.SaikuSelection;
 import org.saiku.olap.dto.SaikuSelection.Type;
 import org.saiku.olap.dto.SimpleCubeElement;
 import org.saiku.olap.query.IQuery;
+import org.saiku.service.util.MondrianDictionary;
 import org.saiku.service.util.exception.SaikuServiceException;
 
 public class ObjectUtil {
@@ -131,15 +137,32 @@ public class ObjectUtil {
 
 	public static SaikuLevel convert(Level level) {
 		try {
-//			List<SaikuMember> members = convertMembers(level.getMembers());
+			
+			Map<String, Object> flags = new HashMap<String, Object>();
+//			Map<String, String> annotations = new HashMap<String, String>();
+//			if (!SaikuMondrianHelper.getAnnotations(level).isEmpty()) {
+//				for (Map.Entry<String, Annotation> entry : SaikuMondrianHelper.getAnnotations(level).entrySet()) {
+//					annotations.put(entry.getKey(), (String) entry.getValue().getValue());
+//				}
+//			}
+			if (SaikuMondrianHelper.hasAnnotation(level, MondrianDictionary.AnalyzerDateFormat)) {
+				if (Level.Type.TIME_DAYS.equals(level.getLevelType())) {
+					flags.put(SaikuDictionary.DateFlags, SaikuDictionary.getAllDateFlags());
+				} else {
+					flags.put(SaikuDictionary.DateFlags, SaikuDictionary.getAllPeriodFlags());
+				}
+			}
 			return new SaikuLevel(
-					level.getName(), 
-					level.getUniqueName(), 
-					level.getCaption(), 
+					level.getName(),
+					level.getUniqueName(),
+					level.getCaption(),
 					level.getDescription(),
-					level.getDimension().getUniqueName(), 
+					level.getDimension().getUniqueName(),
 					level.getHierarchy().getUniqueName(),
-					level.isVisible());
+					level.isVisible(),
+					level.getLevelType().toString(),
+					flags);
+	          
 		}
 		catch (Exception e) {
 			throw new SaikuServiceException("Cannot convert level: " + level,e);

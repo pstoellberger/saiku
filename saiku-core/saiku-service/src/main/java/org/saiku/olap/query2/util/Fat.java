@@ -2,15 +2,21 @@ package org.saiku.olap.query2.util;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import mondrian.olap.Annotation;
+import mondrian.olap4j.SaikuMondrianHelper;
+import mondrian.util.Format;
 
 import org.apache.commons.lang.StringUtils;
 import org.olap4j.Axis;
 import org.olap4j.OlapException;
 import org.olap4j.metadata.Cube;
 import org.olap4j.metadata.Hierarchy;
+import org.olap4j.metadata.Level;
 import org.olap4j.metadata.Measure;
 import org.saiku.olap.query2.ThinAxis;
 import org.saiku.olap.query2.ThinCalculatedMeasure;
@@ -26,6 +32,9 @@ import org.saiku.olap.query2.ThinQueryModel.AxisLocation;
 import org.saiku.olap.query2.common.ThinQuerySet;
 import org.saiku.olap.query2.common.ThinSortableQuerySet;
 import org.saiku.olap.query2.filter.ThinFilter;
+import org.saiku.olap.util.SaikuDictionary;
+import org.saiku.olap.util.SaikuDictionary.DateFlag;
+import org.saiku.olap.util.SaikuProperties;
 import org.saiku.query.IQuerySet;
 import org.saiku.query.ISortableQuerySet;
 import org.saiku.query.Query;
@@ -40,6 +49,7 @@ import org.saiku.query.mdx.NFilter;
 import org.saiku.query.mdx.NameFilter;
 import org.saiku.query.mdx.NameLikeFilter;
 import org.saiku.query.metadata.CalculatedMeasure;
+import org.saiku.service.util.MondrianDictionary;
 
 public class Fat {
 	
@@ -180,15 +190,22 @@ public class Fat {
 //					}
 					break;
 				case RANGE:
-					int size = tl.getSelection().getMembers().size();
-					int iterations = tl.getSelection().getMembers().size() / 2;
-					if (size > 2 && size % 2 == 0) {
-						for (int i = 0; i < iterations; i++) {
-							ThinMember start = tl.getSelection().getMembers().get(iterations * 2 + i);
-							ThinMember end = tl.getSelection().getMembers().get(iterations * 2 + i + 1);
-							qh.includeRange(start.getUniqueName(), end.getUniqueName());
-						}
+					List<ThinMember> members = tl.getSelection().getMembers();
+					ThinMember start = members.size() > 0 ? members.get(0) : null;
+					ThinMember end = members.size() > 1 ? members.get(1) : null;
+					String startEx = start != null ? start.getUniqueName() : null;
+					String endEx = end != null ? end.getUniqueName() : null;
+					
+					if (isFlag(startEx)) {
+						ql.setRangeStartSynonym(startEx);
+						resolveFlag(startEx, ql);
 					}
+					
+					if (ql.getRangeEndExpr() == null && isFlag(endEx)) {
+						ql.setRangeEndSynonym(endEx);
+						resolveFlag(endEx, ql);
+					}
+
 					break;
 				default:
 					break;
@@ -199,6 +216,84 @@ public class Fat {
 			extendQuerySet(qh.getQuery(), ql, tl);
 		}
 		extendSortableQuerySet(qh.getQuery(), qh, th);
+	}
+	
+
+	private static boolean isFlag(String expr) {
+		return StringUtils.isNotBlank(expr) && expr.toUpperCase().startsWith("F:");
+	}
+	
+	private static String resolveFlag(String expr, QueryLevel ql) {
+		String resolvedStartExpr = expr;
+		String resolvedEndExpr = null;
+		Level lvl = ql.getLevel();
+		if (isFlag(resolvedStartExpr)) {
+			String flag = expr.substring(2, expr.length()).trim();
+			resolvedStartExpr = flag;
+			boolean isDate = false;
+			for (DateFlag df : SaikuDictionary.DateFlag.values()) {
+				isDate = (flag.toUpperCase().endsWith(df.toString()));
+				if (isDate)
+					break;
+			}
+			if (isDate) {
+				Annotation dateAn = SaikuMondrianHelper.hasAnnotation(lvl, MondrianDictionary.AnalyzerDateFormat) ?
+						SaikuMondrianHelper.getAnnotation(lvl, MondrianDictionary.AnalyzerDateFormat)
+						: SaikuMondrianHelper.getAnnotation(lvl, MondrianDictionary.SaikuDayFormat);
+
+				if (dateAn != null) {
+					String currDate;
+					String formatString = dateAn.getValue().toString();
+					final Format format = new Format(formatString, SaikuProperties.locale);
+					currDate = lvl.getHierarchy().getUniqueName() + "." + format.format(Calendar.getInstance(SaikuProperties.locale).getTime());
+					System.err.println("Current Date for DateFormat:" + formatString + "=" + currDate);
+
+					if (SaikuDictionary.DateFlag.CURRENT.toString().equals(flag.toUpperCase())) {
+						resolvedStartExpr = currDate;
+					} else if (SaikuDictionary.DateFlag.LAST.toString().equals(flag.toUpperCase())) {
+						resolvedStartExpr = currDate + ".Lag(1)";
+					} else if (flag.toUpperCase().endsWith(SaikuDictionary.DateFlag.AGO.toString())){
+						resolvedStartExpr = currDate + ".Lag(" + flag.replaceAll(SaikuDictionary.DateFlag.AGO.toString(), "") + ")";
+					}
+					
+					if (Level.Type.TIME_DAYS.equals(lvl.getLevelType())) {
+						if (SaikuDictionary.DateFlag.CURRENTMONTH.toString().equals(flag.toUpperCase())) {
+							Calendar startC = Calendar.getInstance(SaikuProperties.locale);
+							startC.set(Calendar.DAY_OF_MONTH, 1);
+							String startDate =  lvl.getHierarchy().getUniqueName() + "." + format.format(startC.getTime());
+							resolvedStartExpr = startDate; 
+							resolvedEndExpr = currDate;
+						} else if (SaikuDictionary.DateFlag.CURRENTWEEK.toString().equals(flag.toUpperCase())) {
+							Calendar startC = Calendar.getInstance(SaikuProperties.locale);
+							startC.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+							String startDate =  lvl.getHierarchy().getUniqueName() + "." + format.format(startC.getTime());
+							resolvedStartExpr = startDate; 
+							resolvedEndExpr = currDate;
+						} else if (SaikuDictionary.DateFlag.LASTMONTH.toString().equals(flag.toUpperCase())) {
+							Calendar startC = Calendar.getInstance(SaikuProperties.locale);
+							startC.add(Calendar.MONTH, - 1);
+							startC.set(Calendar.DAY_OF_MONTH, 1);
+							String startDate = lvl.getHierarchy().getUniqueName() + "." + format.format(startC.getTime());
+							startC.set(Calendar.DAY_OF_MONTH, startC.getActualMaximum(Calendar.DAY_OF_MONTH));
+							String endDate = lvl.getHierarchy().getUniqueName() + "." + format.format(startC.getTime());
+							resolvedStartExpr = startDate;
+							resolvedEndExpr =  endDate;
+						} else if (SaikuDictionary.DateFlag.LASTWEEK.toString().equals(flag.toUpperCase())) {
+							Calendar startC = Calendar.getInstance(SaikuProperties.locale);
+							startC.add(Calendar.WEEK_OF_YEAR, - 1);
+							startC.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+							String startDate = lvl.getHierarchy().getUniqueName() + "." + format.format(startC.getTime());
+							startC.add(Calendar.DATE, 6);
+							String endDate = lvl.getHierarchy().getUniqueName() + "." + format.format(startC.getTime());
+							resolvedStartExpr = startDate;
+							resolvedEndExpr =  endDate;
+						}
+					}
+				}
+			}
+		}
+		ql.setRangeExpressions(resolvedStartExpr, resolvedEndExpr);
+		return resolvedStartExpr;
 	}
 
 

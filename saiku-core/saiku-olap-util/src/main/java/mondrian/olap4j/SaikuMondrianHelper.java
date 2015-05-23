@@ -115,6 +115,13 @@ public class SaikuMondrianHelper {
 		return (element instanceof MondrianOlap4jMetadataElement);
 	}
 	
+	public static Annotation getAnnotation(Level level, String key) {
+		if (hasAnnotation(level, key)) {
+			return getAnnotations(level).get(key);
+		}
+		return null;
+	}
+	
 	public static Map<String, Annotation> getAnnotations(Level level) {
 		if (isMondrian(level)) {
 			MondrianOlap4jLevel mlevel = (MondrianOlap4jLevel) level;

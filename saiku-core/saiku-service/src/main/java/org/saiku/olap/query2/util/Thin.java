@@ -173,18 +173,30 @@ public class Thin {
 	private static ThinLevel convertLevel(QueryLevel ql, ThinQuery tq) {
 		List<ThinMember> inclusions = convertMembers(ql.getInclusions());
 		List<ThinMember> exclusions = convertMembers(ql.getExclusions());
-		ThinMember rangeStart = convertMember(ql.getRangeStart());
-		ThinMember rangeEnd = convertMember(ql.getRangeEnd());
 		ThinSelection ts = new ThinSelection(ThinSelection.Type.INCLUSION, null);
 		
 		if (inclusions.size() > 0) {
 			ts = new ThinSelection(ThinSelection.Type.INCLUSION, inclusions);
 		} else if (exclusions.size() > 0) {
 			ts = new ThinSelection(ThinSelection.Type.EXCLUSION, exclusions);
-		} else if (rangeStart != null && rangeEnd != null){
+		} else if (ql.isRange()){
 			List<ThinMember> range = new ArrayList<ThinMember>();
-			range.add(rangeStart);
-			range.add(rangeEnd);
+			
+			ThinMember rangeStart = getLastNotNull(
+					convertMember(ql.getRangeStart()), 
+					convertPseudoMember(ql.getRangeStartExpr()), 
+					convertPseudoMember(ql.getRangeStartSyn()));
+			ThinMember rangeEnd = getLastNotNull(
+					convertMember(ql.getRangeEnd()), 
+					convertPseudoMember(ql.getRangeEndExpr()), 
+					convertPseudoMember(ql.getRangeEndSyn()));
+			
+			if (rangeStart != null) {
+				range.add(rangeStart);
+			}
+			if (rangeEnd != null) {
+				range.add(rangeEnd);
+			}
 			ts = new ThinSelection(ThinSelection.Type.RANGE, range);
 		}
 		
@@ -196,6 +208,22 @@ public class Thin {
 		ThinLevel l = new ThinLevel(ql.getName(), ql.getCaption(), ts, aggs);
 		extendQuerySet(l, ql);
 		return l;
+	}
+	
+	private static ThinMember getLastNotNull(ThinMember ...members) {
+		if (members != null) {
+			if (members.length > 1) {
+				ThinMember m = members[0];
+				for (int i = 1; i < members.length; i++) {
+					if (members[i] != null)
+						m = members[i];
+				}
+				return m;
+			} else {
+				return members[0];
+			}
+		}
+		return null;
 	}
 
 	private static List<ThinMember> convertMembers(List<Member> members) {
@@ -211,6 +239,13 @@ public class Thin {
 	private static ThinMember convertMember(Member m) {
 		if (m != null) {
 			return new ThinMember(m.getName(), m.getUniqueName(), m.getCaption());
+		}
+		return null;
+	}
+	
+	private static ThinMember convertPseudoMember(String uniqueName) {
+		if (uniqueName != null) {
+			return new ThinMember(uniqueName, uniqueName, uniqueName);
 		}
 		return null;
 	}
