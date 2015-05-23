@@ -313,17 +313,18 @@ public class ThinQueryServiceTest {
 			compareQuery(name, first);
 			
 			ThinMember last = new ThinMember(null, "F:LAST", null);
-			//ThinMember cur = new ThinMember(null, "F:CURRENT", null);
+			ThinMember cur = new ThinMember(null, "F:CURRENT", null);
 			
 			ranges.clear();
-			//ranges.add(cur);
 			ranges.add(last);
+			ranges.add(cur);
 			sl.setMembers(ranges);
 			
 			
 			q = Fat.convert(tq, cub);
 			ThinQuery dateFlags = Thin.convert(q, c);
 			String third = om.defaultPrettyPrintingWriter().writeValueAsString(dateFlags);
+			compareQuery("rangeExpFlag", third);
 
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -198,12 +198,28 @@ public class Fat {
 					
 					if (isFlag(startEx)) {
 						ql.setRangeStartSynonym(startEx);
-						resolveFlag(startEx, ql);
+						List<String> exp = resolveFlag(startEx, ql);
+						if (exp.size() > 1) {
+							ql.setRangeExpressions(exp.get(0), exp.get(1));
+						} else {
+							ql.setRangeStartExpr(exp.get(0));
+						}
+					} else {
+						ql.setRangeStartExpr(startEx);
 					}
 					
-					if (ql.getRangeEndExpr() == null && isFlag(endEx)) {
-						ql.setRangeEndSynonym(endEx);
-						resolveFlag(endEx, ql);
+					if (ql.getRangeEndExpr() == null) {
+						if (isFlag(endEx)) {
+							ql.setRangeEndSynonym(endEx);
+							List<String> exp = resolveFlag(endEx, ql);
+							if (exp.size() > 1) {
+								ql.setRangeExpressions(exp.get(0), exp.get(1));
+							} else {
+								ql.setRangeEndExpr(exp.get(0));
+							}
+						} else {
+							ql.setRangeEndExpr(endEx);
+						}
 					}
 
 					break;
@@ -223,7 +239,8 @@ public class Fat {
 		return StringUtils.isNotBlank(expr) && expr.toUpperCase().startsWith("F:");
 	}
 	
-	private static String resolveFlag(String expr, QueryLevel ql) {
+	private static List<String> resolveFlag(String expr, QueryLevel ql) {
+		List<String> exprs = new ArrayList<String>();
 		String resolvedStartExpr = expr;
 		String resolvedEndExpr = null;
 		Level lvl = ql.getLevel();
@@ -246,7 +263,7 @@ public class Fat {
 					String formatString = dateAn.getValue().toString();
 					final Format format = new Format(formatString, SaikuProperties.locale);
 					currDate = lvl.getHierarchy().getUniqueName() + "." + format.format(Calendar.getInstance(SaikuProperties.locale).getTime());
-					System.err.println("Current Date for DateFormat:" + formatString + "=" + currDate);
+					//System.err.println("Current Date for DateFormat:" + formatString + "=" + currDate);
 
 					if (SaikuDictionary.DateFlag.CURRENT.toString().equals(flag.toUpperCase())) {
 						resolvedStartExpr = currDate;
@@ -277,7 +294,7 @@ public class Fat {
 							startC.set(Calendar.DAY_OF_MONTH, startC.getActualMaximum(Calendar.DAY_OF_MONTH));
 							String endDate = lvl.getHierarchy().getUniqueName() + "." + format.format(startC.getTime());
 							resolvedStartExpr = startDate;
-							resolvedEndExpr =  endDate;
+							resolvedEndExpr = endDate;
 						} else if (SaikuDictionary.DateFlag.LASTWEEK.toString().equals(flag.toUpperCase())) {
 							Calendar startC = Calendar.getInstance(SaikuProperties.locale);
 							startC.add(Calendar.WEEK_OF_YEAR, - 1);
@@ -286,14 +303,17 @@ public class Fat {
 							startC.add(Calendar.DATE, 6);
 							String endDate = lvl.getHierarchy().getUniqueName() + "." + format.format(startC.getTime());
 							resolvedStartExpr = startDate;
-							resolvedEndExpr =  endDate;
+							resolvedEndExpr = endDate;
 						}
 					}
 				}
 			}
 		}
-		ql.setRangeExpressions(resolvedStartExpr, resolvedEndExpr);
-		return resolvedStartExpr;
+		exprs.add(resolvedStartExpr);
+		if (resolvedEndExpr != null) {
+			exprs.add(resolvedEndExpr);
+		}
+		return exprs;
 	}
 
 

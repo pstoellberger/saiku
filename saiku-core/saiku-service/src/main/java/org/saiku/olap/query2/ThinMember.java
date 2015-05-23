@@ -56,6 +56,10 @@ public class ThinMember {
 		this.caption = caption;
 	}
 
+	@Override
+	public String toString() {
+		return uniqueName.toString();
+	}
 	
 
 }
