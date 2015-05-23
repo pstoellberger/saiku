@@ -47,7 +47,7 @@ public class PentahoDatasourceManager implements IDatasourceManager {
 	private Map<String,SaikuDatasource> datasources = Collections.synchronizedMap(new HashMap<String,SaikuDatasource>());
 
 	private String saikuDatasourceProcessor;
-	
+
 	private String saikuConnectionProcessor;
 
 	private String dynamicSchemaProcessor;
@@ -61,22 +61,27 @@ public class PentahoDatasourceManager implements IDatasourceManager {
 	public void setDatasourceResolverClass(String datasourceResolverClass) {
 		this.datasourceResolver = datasourceResolverClass;
 	}
-	
+
 	public void setSaikuDatasourceProcessor(String datasourceProcessor) {
 		this.saikuDatasourceProcessor = datasourceProcessor;
 	}
-	
+
 	public void setSaikuConnectionProcessor(String connectionProcessor) {
 		this.saikuConnectionProcessor = connectionProcessor;
 	}
-	
+
 	public void setDynamicSchemaProcessor(String dynamicSchemaProcessor) {
 		this.dynamicSchemaProcessor = dynamicSchemaProcessor;
 	}
-	
+
 	public PentahoDatasourceManager() {
 	}
-	
+
+	public PentahoDatasourceManager(IPentahoSession session) {
+		this.session = session;
+	}
+
+
 	public void init() {
 		load();
 	}
@@ -88,33 +93,35 @@ public class PentahoDatasourceManager implements IDatasourceManager {
 
 	private Map<String, SaikuDatasource> loadDatasources() {
 		try {
-			this.session = PentahoSessionHolder.getSession();
-			
+			if (this.session == null) {
+				this.session = PentahoSessionHolder.getSession();
+			}
+
 			ClassLoader cl = this.getClass().getClassLoader();
 			ClassLoader cl2 = this.getClass().getClassLoader().getParent();
-			
+
 			Thread.currentThread().setContextClassLoader(cl2);
 			this.catalogService = PentahoSystem.get(IMondrianCatalogService.class,
 					session);
-			
+
 			List<MondrianCatalog> catalogs = catalogService.listCatalogs(session, true);
 			Thread.currentThread().setContextClassLoader(cl);
 			if (StringUtils.isNotBlank(this.datasourceResolver)) {
 				MondrianProperties.instance().DataSourceResolverClass.setString(this.datasourceResolver);
 			}
-			
+
 			for (MondrianCatalog catalog : catalogs) {
 				String name = catalog.getName();
 				Util.PropertyList parsedProperties = Util.parseConnectString(catalog
 						.getDataSourceInfo());
 
 				String dynProcName = parsedProperties.get(
-		                RolapConnectionProperties.DynamicSchemaProcessor.name());
+						RolapConnectionProperties.DynamicSchemaProcessor.name());
 				if (StringUtils.isNotBlank(dynamicSchemaProcessor) && StringUtils.isBlank(dynProcName)) {
 					parsedProperties.put(RolapConnectionProperties.DynamicSchemaProcessor.name(), dynamicSchemaProcessor);
-					
+
 				}
-				
+
 				StringBuilder builder = new StringBuilder();
 				builder.append("jdbc:mondrian:");
 				builder.append("Catalog=");
@@ -131,10 +138,10 @@ public class PentahoDatasourceManager implements IDatasourceManager {
 					builder.append("; ");
 				}
 
-//				builder.append("PoolNeeded=false; ");
-				
+				//				builder.append("PoolNeeded=false; ");
+
 				builder.append("Locale=");
-				if (session != null) {
+		        if (session != null && session.getLocale() != null) {
 					builder.append(session.getLocale().toString());
 				} else {
 					builder.append(LocaleHelper.getLocale().toString());
@@ -142,13 +149,13 @@ public class PentahoDatasourceManager implements IDatasourceManager {
 				builder.append(";");
 
 				String url = builder.toString();
-				
+
 				LOG.debug("NAME: " + catalog.getName() + " DSINFO: " + url + "  ###CATALOG: " + catalog.getName());
-				
+
 				Properties props = new Properties();
 				props.put("driver", "mondrian.olap4j.MondrianOlap4jDriver");
 				props.put("location",url);
-				
+
 				if (saikuDatasourceProcessor != null) {
 					props.put(ISaikuConnection.DATASOURCE_PROCESSORS, saikuDatasourceProcessor);
 				}
@@ -159,8 +166,8 @@ public class PentahoDatasourceManager implements IDatasourceManager {
 
 				SaikuDatasource sd = new SaikuDatasource(name, SaikuDatasource.Type.OLAP, props);
 				datasources.put(name, sd);
-				
-				
+
+
 			}
 			return datasources;
 		} catch(Exception e) {
