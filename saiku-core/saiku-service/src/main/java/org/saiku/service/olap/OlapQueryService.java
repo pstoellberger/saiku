@@ -104,7 +104,7 @@ import org.saiku.service.olap.totals.aggregators.TotalAggregator;
 import org.saiku.service.util.KeyValue;
 import org.saiku.service.util.exception.SaikuServiceException;
 import org.saiku.service.util.export.CsvExporter;
-import org.saiku.service.util.export.ExcelExporter;
+import org.saiku.service.util.export.excel.ExcelExporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -87,7 +87,8 @@ import org.saiku.service.util.QueryContext.ObjectKey;
 import org.saiku.service.util.QueryContext.Type;
 import org.saiku.service.util.exception.SaikuServiceException;
 import org.saiku.service.util.export.CsvExporter;
-import org.saiku.service.util.export.ExcelExporter;
+import org.saiku.service.util.export.excel.ExcelBuilderOptions;
+import org.saiku.service.util.export.excel.ExcelExporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -301,17 +302,17 @@ public class ThinQueryService implements Serializable {
 		}
 	}
 
-	public byte[] getExport(String queryName, String type) {
-		return getExport(queryName,type,new FlattenedCellSetFormatter());
+	public byte[] getExport(String queryName, String type) throws Exception {
+		return getExport(queryName,type,new FlattenedCellSetFormatter(), null);
 	}
 
-	public byte[] getExport(String queryName, String type, String formatter) {
+	public byte[] getExport(String queryName, String type, String formatter, ExcelBuilderOptions exb) throws Exception {
 		String formatterName = formatter == null ? "" : formatter.toLowerCase();
 		ICellSetFormatter cf = cff.forName(formatterName);
-		return getExport(queryName, type, cf);
+		return getExport(queryName, type, cf, exb);
 	}
 
-	public byte[] getExport(String queryName, String type, ICellSetFormatter formatter) {
+	public byte[] getExport(String queryName, String type, ICellSetFormatter formatter, ExcelBuilderOptions options) throws Exception {
 		if (StringUtils.isNotBlank(type) && context.containsKey(queryName)) {
 			CellSet rs = context.get(queryName).getOlapResult();
 			ThinQuery tq = context.get(queryName).getOlapQuery();
@@ -320,7 +321,12 @@ public class ThinQueryService implements Serializable {
 				filterHierarchies = tq.getQueryModel().getAxes().get(AxisLocation.FILTER).getHierarchies();
 			}
 			if (type.toLowerCase().equals("xls")) {
-				return ExcelExporter.exportExcel(rs, formatter, filterHierarchies);
+				CellDataSet table = OlapResultSetUtil.cellSet2Matrix(rs, formatter);
+				ExcelBuilderOptions opt = options != null ? options : new ExcelBuilderOptions();
+				if (opt.isShowTotals() && ThinQuery.Type.QUERYMODEL.equals(tq.getType()) && formatter instanceof FlattenedCellSetFormatter && tq.hasAggregators()) {
+					calculateTotals(tq, table, rs, formatter);
+				}
+				return ExcelExporter.createExcel(table, filterHierarchies, opt);
 			}
 			if (type.toLowerCase().equals("csv")) {
 				return CsvExporter.exportCsv(rs, SaikuProperties.webExportCsvDelimiter, SaikuProperties.webExportCsvTextEscape, formatter);

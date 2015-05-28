@@ -56,6 +56,7 @@ import org.saiku.olap.query2.ThinQuery;
 import org.saiku.olap.util.SaikuProperties;
 import org.saiku.service.olap.ThinQueryService;
 import org.saiku.service.util.exception.SaikuServiceException;
+import org.saiku.service.util.export.excel.ExcelBuilderOptions;
 import org.saiku.web.export.JSConverter;
 import org.saiku.web.export.PdfReport;
 import org.saiku.web.rest.objects.resultset.QueryResult;
@@ -270,7 +271,7 @@ public class Query2Resource {
 		if (log.isDebugEnabled()) {
 			log.debug("TRACK\t"  + "\t/query/" + queryName + "/export/xls/\tGET");
 		}
-		return getQueryExcelExport(queryName, "flattened");
+		return getQueryExcelExport(queryName, "flattened", null,null);
 	}
 
 	@GET
@@ -278,12 +279,15 @@ public class Query2Resource {
 	@Path("/{queryname}/export/xls/{format}")
 	public Response getQueryExcelExport(
 			@PathParam("queryname") String queryName,
-			@PathParam("format") @DefaultValue("flattened") String format){
+			@PathParam("format") @DefaultValue("flattened") String format,
+			@QueryParam("showTotals") @DefaultValue("false") Boolean showTotals,
+			@QueryParam("repeatValues") @DefaultValue("true") Boolean repeatValues){
 		if (log.isDebugEnabled()) {
 			log.debug("TRACK\t"  + "\t/query/" + queryName + "/export/xls/"+format+"\tGET");
 		}
 		try {
-			byte[] doc = thinQueryService.getExport(queryName,"xls",format);
+			ExcelBuilderOptions exb = new ExcelBuilderOptions(null, repeatValues, showTotals);
+			byte[] doc = thinQueryService.getExport(queryName,"xls",format, exb);
 			String name = SaikuProperties.webExportExcelName + "." + SaikuProperties.webExportExcelFormat;
 			return Response.ok(doc, MediaType.APPLICATION_OCTET_STREAM).header(
 					"content-disposition",
@@ -317,7 +321,7 @@ public class Query2Resource {
 			log.debug("TRACK\t"  + "\t/query/" + queryName + "/export/csv/"+format+"\tGET");
 		}
 		try {
-			byte[] doc = thinQueryService.getExport(queryName,"csv",format);
+			byte[] doc = thinQueryService.getExport(queryName,"csv",format, null);
 			String name = SaikuProperties.webExportCsvName;
 			return Response.ok(doc, MediaType.APPLICATION_OCTET_STREAM).header(
 					"content-disposition",

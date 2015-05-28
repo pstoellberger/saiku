@@ -13,7 +13,7 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package org.saiku.service.util.export;
+package org.saiku.service.util.export.excel;
 
 import java.util.List;
 
@@ -24,8 +24,6 @@ import org.saiku.olap.util.OlapResultSetUtil;
 import org.saiku.olap.util.formatter.FlattenedCellSetFormatter;
 import org.saiku.olap.util.formatter.HierarchicalCellSetFormatter;
 import org.saiku.olap.util.formatter.ICellSetFormatter;
-import org.saiku.service.util.export.excel.ExcelBuilderOptions;
-import org.saiku.service.util.export.excel.ExcelWorksheetBuilder;
 
 public class ExcelExporter {
 
@@ -39,10 +37,10 @@ public class ExcelExporter {
 		CellDataSet table = OlapResultSetUtil.cellSet2Matrix(cellSet, formatter);
 		ExcelBuilderOptions exb = new ExcelBuilderOptions();
 		exb.repeatValues = (formatter instanceof FlattenedCellSetFormatter);
-		return getExcel(table, filters, exb);
+		return createExcel(table, filters, exb);
 	}
 
-	private static byte[] getExcel(CellDataSet table, List<ThinHierarchy> filters, ExcelBuilderOptions options) {
+	public static byte[] createExcel(CellDataSet table, List<ThinHierarchy> filters, ExcelBuilderOptions options) {
         // TBD Sheet name is parametric. Useful for future ideas or improvements
         ExcelWorksheetBuilder worksheetBuilder = new ExcelWorksheetBuilder(table, filters, options);
         return worksheetBuilder.build();

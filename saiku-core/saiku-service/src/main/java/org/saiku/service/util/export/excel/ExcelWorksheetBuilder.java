@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFPalette;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -31,10 +32,13 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.saiku.olap.dto.resultset.AbstractBaseCell;
 import org.saiku.olap.dto.resultset.CellDataSet;
 import org.saiku.olap.dto.resultset.DataCell;
+import org.saiku.olap.dto.resultset.MemberCell;
 import org.saiku.olap.query2.ThinHierarchy;
 import org.saiku.olap.query2.ThinLevel;
 import org.saiku.olap.query2.ThinMember;
 import org.saiku.olap.util.SaikuProperties;
+import org.saiku.service.olap.totals.TotalNode;
+import org.saiku.service.olap.totals.aggregators.TotalAggregator;
 import org.saiku.service.util.exception.SaikuServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,6 +57,7 @@ public class ExcelWorksheetBuilder {
     private static final short BASIC_SHEET_FONT_SIZE = 11;
     private static final String EMPTY_STRING = "";
     private static final String CSS_COLORS_CODE_PROPERTIES = "css-colors-codes.properties";
+    private static final String TOTALS_STRING = "Total";
     
     private int maxRows = -1;
     private int maxColumns = -1;
@@ -79,6 +84,9 @@ public class ExcelWorksheetBuilder {
 	private ExcelBuilderOptions options;
 	
 	private Map<String, CellStyle> cellStyles = new HashMap<String, CellStyle>();
+	private List<TotalNode>[] rowTotals;
+	private List<TotalNode>[] colTotals;
+	private CellDataSet table;
     
     private static final Logger log = LoggerFactory.getLogger(ExcelWorksheetBuilder.class);
 
@@ -113,6 +121,9 @@ public class ExcelWorksheetBuilder {
         this.sheetName = options.sheetName;
         rowsetHeader = table.getCellSetHeaders();
         rowsetBody = table.getCellSetBody();
+        this.rowTotals = table.getRowTotalsLists();
+        this.colTotals = table.getColTotalsLists();
+        this.table = table;
 
         topLeftCornerWidth = findTopLeftCornerWidth();
         topLeftCornerHeight = findTopLeftCornerHeight();
@@ -129,12 +140,16 @@ public class ExcelWorksheetBuilder {
         basicCS = excelWorkbook.createCellStyle();
         basicCS.setFont(font);
         basicCS.setAlignment(CellStyle.ALIGN_LEFT);
-        setCellBordersColor(basicCS);
+        if (options.bodyCellBorder) {
+        	setCellBordersColor(basicCS);
+    	}
 
         numberCS = excelWorkbook.createCellStyle();
         numberCS.setFont(font);
         numberCS.setAlignment(CellStyle.ALIGN_RIGHT);
-        setCellBordersColor(numberCS);
+        if (options.bodyCellBorder) {
+        	setCellBordersColor(numberCS);
+        }
         /* 
         justasg:
             Let's set default format, used if measure has no format at all.
@@ -188,6 +203,7 @@ public class ExcelWorksheetBuilder {
         Long init = (new Date()).getTime();
         int lastHeaderRow = buildExcelTableHeader(startRow);
         Long header = (new Date()).getTime();
+        mergeRowTotals();
         addExcelTableRows(lastHeaderRow);
         Long content = (new Date()).getTime();
         finalizeExcelSheet(startRow);
@@ -319,7 +335,6 @@ public class ExcelWorksheetBuilder {
 
         Row sheetRow = null;
         Cell cell = null;
-        String formatString = null;
 
         if ((startingRow + rowsetBody.length) > maxRows) {
         	log.warn("Excel sheet is truncated, only outputting " + maxRows + " rows of " + (rowsetBody.length + startingRow));
@@ -331,6 +346,7 @@ public class ExcelWorksheetBuilder {
         for (int x = 0; (x + startingRow)  < maxRows && x < rowsetBody.length; x++) {
 
             sheetRow = workbookSheet.createRow((int) x + startingRow);
+            boolean isRepeating = true;
             for (int y = 0; y < maxColumns && y < rowsetBody[x].length; y++) {
                 cell = sheetRow.createCell(y);
                 String value = rowsetBody[x][y].getFormattedValue();
@@ -339,6 +355,10 @@ public class ExcelWorksheetBuilder {
                     // but not in the interface. To properly format the Excel export file we need that value so we
                     // get it from the same position in the prev row
                     value = workbookSheet.getRow(sheetRow.getRowNum()-1).getCell(y).getStringCellValue();
+                } else if (!options.repeatValues && isRepeating && x > 0 && y < table.getLeftOffset()) {
+                	String oldValue = rowsetBody[x-1][y].getFormattedValue();
+                	isRepeating = isRepeating & StringUtils.equals(value, oldValue);
+                	value = isRepeating ? null : value;
                 }
                 if (rowsetBody[x][y] instanceof DataCell && ((DataCell) rowsetBody[x][y]).getRawNumber() != null) {
                     Number numberValue = ((DataCell) rowsetBody[x][y]).getRawNumber();
@@ -350,6 +370,66 @@ public class ExcelWorksheetBuilder {
                 }
             }
         }
+    }
+    
+    private void mergeRowTotals() {
+    	if (rowsetBody == null && rowsetBody.length == 0)
+        	return;
+
+        if (rowTotals != null && rowTotals.length > 0) {
+        	List<AbstractBaseCell[]> body = new ArrayList<AbstractBaseCell[]>();
+            CollectionUtils.addAll(body, rowsetBody);
+            int bodyWidth = rowsetBody[0].length;
+            int leftOffset = table.getLeftOffset();
+            
+        	// Going down the levels from most inner to outer
+        	for (int i = rowTotals.length - 1; i >= 0; i--) {
+    			List<TotalNode> current = rowTotals [i];
+    			int lastInsert = 0;
+    			// Going down total groups (e.g. row 3, row 15, ...)
+    			for (int j = 0; j < current.size(); j++) {
+    				TotalNode tn = current.get(j);
+    				int insertAt = tn.getSpan() + lastInsert;
+    				lastInsert = insertAt + 1;
+    				
+    				// for rows can only be 1?
+    				if (tn.getTotalGroups() != null && tn.getTotalGroups().length > 0) {
+    					//log.error("Group: " + i + " Paragraph: " + j + " Span: " + tn.getSpan() + " insertAt: " + insertAt);
+    					
+    					AbstractBaseCell[] row = new AbstractBaseCell[bodyWidth];
+    					TotalAggregator[] aggCells = tn.getTotalGroups()[0];
+//    					log.debug("Inserting row: level index = " + i + " bodywidth: " + bodyWidth + " aggcells.length= " + aggCells.length + " data: " + (bodyWidth - i - 1 - aggCells.length));
+    					for(int ci = 0; ci < bodyWidth; ci++) {
+    						MemberCell mc = new MemberCell();
+    						mc.setFormattedValue(EMPTY_STRING);
+    						row[ci] = mc; 
+    					}
+    					row[i].setFormattedValue(TOTALS_STRING);
+    					
+    					for (int ci = 0; (ci + leftOffset) < bodyWidth && ci < aggCells.length; ci++) {
+    						TotalAggregator ta = aggCells[ci];
+    						DataCell dc = new DataCell();
+    						dc.setRawNumber(ta.getValue());
+    						dc.setFormattedValue(ta.getFormattedValue());
+    						row[ci + leftOffset] = dc;
+    					}
+    					
+    					if (insertAt > body.size() - 1) {
+    						//log.error("Inserting row at end.... " + insertAt);
+    						body.add(row);
+    					} else {
+    						//log.error("Inserting row at: " + insertAt);
+    						body.add(insertAt, row);
+    					}
+    					
+    					
+    				}
+    			}
+    			
+    		}
+        	rowsetBody = body.toArray(new AbstractBaseCell[body.size()][]);
+        }
+        
     }
 
     protected void applyCellFormatting(Cell cell, int x, int y) {

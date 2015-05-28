@@ -40,6 +40,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 
 import org.apache.commons.lang.StringUtils;
 import org.saiku.olap.query2.ThinQuery;
+import org.saiku.service.util.export.excel.ExcelBuilderOptions;
 import org.saiku.web.export.PdfReport;
 import org.saiku.web.rest.objects.resultset.QueryResult;
 import org.saiku.web.rest.util.ServletUtil;
@@ -79,6 +80,8 @@ public class ExporterResource {
 	@Path("/saiku/xls")
 	public Response exportExcel(@QueryParam("file") String file, 
 			@QueryParam("formatter") String formatter,
+			@QueryParam("showTotals") @DefaultValue("false") boolean showTotals,
+			@QueryParam("repeatValues") @DefaultValue("true") boolean repeatValues,
 			@Context HttpServletRequest servletRequest) 
 	{
 		try {
@@ -103,7 +106,8 @@ public class ExporterResource {
 				}
 			}
 			query2Resource.execute(tq);
-			return query2Resource.getQueryExcelExport(queryName, formatter);
+			
+			return query2Resource.getQueryExcelExport(queryName, formatter, showTotals, repeatValues);
 		} catch (Exception e) {
 			log.error("Error exporting XLS for file: " + file, e);
 			return Response.serverError().entity(e.getMessage()).status(Status.INTERNAL_SERVER_ERROR).build();
