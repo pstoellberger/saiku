@@ -1,4 +1,5 @@
 #!/bin/bash
+git submodule update
 cd saiku-query
 git checkout master
 git pull origin master
