@@ -263,14 +263,16 @@ public class Fat {
 					String formatString = dateAn.getValue().toString();
 					final Format format = new Format(formatString, SaikuProperties.locale);
 					currDate = lvl.getHierarchy().getUniqueName() + "." + format.format(Calendar.getInstance(SaikuProperties.locale).getTime());
+					String escapedHierarchy = lvl.getHierarchy().getUniqueName().replaceAll("\\[", "[\"").replaceAll("\\]", "\"]");
+					String currDateMember = "CurrentDateMember(" + lvl.getHierarchy().getUniqueName() + ", '" + escapedHierarchy + "\\." + formatString + "')";  
 					//System.err.println("Current Date for DateFormat:" + formatString + "=" + currDate);
 
 					if (SaikuDictionary.DateFlag.CURRENT.toString().equals(flag.toUpperCase())) {
-						resolvedStartExpr = currDate;
+						resolvedStartExpr = currDateMember;
 					} else if (SaikuDictionary.DateFlag.LAST.toString().equals(flag.toUpperCase())) {
-						resolvedStartExpr = currDate + ".Lag(1)";
+						resolvedStartExpr = currDateMember + ".Lag(1)";
 					} else if (flag.toUpperCase().endsWith(SaikuDictionary.DateFlag.AGO.toString())){
-						resolvedStartExpr = currDate + ".Lag(" + flag.replaceAll(SaikuDictionary.DateFlag.AGO.toString(), "") + ")";
+						resolvedStartExpr = currDateMember + ".Lag(" + flag.replaceAll(SaikuDictionary.DateFlag.AGO.toString(), "") + ")";
 					}
 					
 					if (Level.Type.TIME_DAYS.equals(lvl.getLevelType())) {
