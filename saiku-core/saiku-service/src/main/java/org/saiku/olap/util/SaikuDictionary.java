@@ -8,6 +8,7 @@ public class SaikuDictionary {
 		CURRENT,
 		LAST,
 		AGO,
+		EXACT,
 		CURRENTWEEK,
 		LASTWEEK,
 		LAST7,

@@ -1,8 +1,10 @@
 package org.saiku.olap.query2.util;
 
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -273,6 +275,16 @@ public class Fat {
 						resolvedStartExpr = currDateMember + ".Lag(1)";
 					} else if (flag.toUpperCase().endsWith(SaikuDictionary.DateFlag.AGO.toString())){
 						resolvedStartExpr = currDateMember + ".Lag(" + flag.replaceAll(SaikuDictionary.DateFlag.AGO.toString(), "") + ")";
+					} else if (flag.toUpperCase().endsWith(SaikuDictionary.DateFlag.EXACT.toString())){
+						resolvedStartExpr = null;
+						String exactString = flag.replaceAll(SaikuDictionary.DateFlag.EXACT.toString(), "");
+						try {
+							Date date = new SimpleDateFormat("yyyy-MM-dd").parse(exactString);
+							resolvedStartExpr = lvl.getUniqueName() + "." + format.format(date);
+						} catch (Exception e) {
+							resolvedStartExpr = lvl.getUniqueName() + ".[" + exactString + "]";
+						}
+
 					}
 					
 					if (Level.Type.TIME_DAYS.equals(lvl.getLevelType())) {
