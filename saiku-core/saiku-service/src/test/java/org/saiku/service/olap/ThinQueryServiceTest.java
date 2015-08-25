@@ -325,6 +325,18 @@ public class ThinQueryServiceTest {
 			ThinQuery dateFlags = Thin.convert(q, c);
 			String third = om.defaultPrettyPrintingWriter().writeValueAsString(dateFlags);
 			compareQuery("rangeExpFlag", third);
+			
+			ThinMember curExact = new ThinMember(null, "F:2015-08-25EXACT", null);
+			ranges.clear();
+			ranges.add(last);
+			ranges.add(curExact);
+			sl.setMembers(ranges);
+			
+			
+			q = Fat.convert(tq, cub);
+			ThinQuery dateFlagsExact = Thin.convert(q, c);
+			String fourth = om.defaultPrettyPrintingWriter().writeValueAsString(dateFlagsExact);
+			compareQuery("rangeExpFlagExact", fourth);
 
 		} catch (Exception e) {
 			e.printStackTrace();

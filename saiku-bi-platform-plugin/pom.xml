@@ -340,7 +340,7 @@
         <repository>
 			<id>alabs-repo</id>
 			<name>alabs repository</name>
-			<url>http://repo.analytical-labs.com/repo/</url>
+			<url>http://repo.meteorite.bi/repo/</url>
 		</repository>
 		<repository>
 			<id>ibiblio</id>

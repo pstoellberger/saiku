@@ -40,17 +40,17 @@
 		<repository>
 			<id>Analytical Labs Repo</id>
 			<name>Analytical Labs Repo-releases</name>
-			<url>http://repo.analytical-labs.com/alabs-release-local</url>
+			<url>http://repo.meteorite.bi/alabs-release-local</url>
 		</repository>
         <repository>
             <id>Analytical Labs Snapshots</id>
             <name>Analytical Labs Repo-releases</name>
-            <url>http://repo.analytical-labs.com/alabs-release-local</url>
+            <url>http://repo.meteorite.bi/alabs-release-local</url>
         </repository>
         <repository>
             <id>Analytical Labs snapshots</id>
             <name>Analytical Labs Repo-releases</name>
-            <url>http://repo.analytical-labs.com/alabs-snapshot-local</url>
+            <url>http://repo.meteorite.bi/alabs-snapshot-local</url>
         </repository>
 
 
