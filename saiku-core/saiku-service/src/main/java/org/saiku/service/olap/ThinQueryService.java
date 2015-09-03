@@ -556,7 +556,7 @@ public class ThinQueryService implements Serializable {
 			}
 			return members;
 		}
-		return null;
+		throw new SaikuServiceException("Cannot fetch query, does not exist in context:" + queryName);
 	}
 
 	private void calculateTotals(ThinQuery tq, CellDataSet result, CellSet cellSet, ICellSetFormatter formatter) throws Exception {
