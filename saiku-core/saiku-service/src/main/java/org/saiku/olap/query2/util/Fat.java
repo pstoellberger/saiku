@@ -203,7 +203,8 @@ public class Fat {
 						List<String> exp = resolveFlag(startEx, ql);
 						if (exp.size() > 1) {
 							ql.setRangeExpressions(exp.get(0), exp.get(1));
-						} else {
+							ql.setRangeEndSynonym("F:" + DateFlag.IGNORE.toString());
+						} else if (exp.size() == 1 ) {
 							ql.setRangeStartExpr(exp.get(0));
 						}
 					} else {
@@ -216,7 +217,7 @@ public class Fat {
 							List<String> exp = resolveFlag(endEx, ql);
 							if (exp.size() > 1) {
 								ql.setRangeExpressions(exp.get(0), exp.get(1));
-							} else {
+							} else if (exp.size() == 1 ) {
 								ql.setRangeEndExpr(exp.get(0));
 							}
 						} else {
@@ -249,6 +250,9 @@ public class Fat {
 		if (isFlag(resolvedStartExpr)) {
 			String flag = expr.substring(2, expr.length()).trim();
 			resolvedStartExpr = flag;
+			if (DateFlag.IGNORE.toString().equals(flag.toUpperCase())) {
+				return exprs;
+			}
 			boolean isDate = false;
 			for (DateFlag df : SaikuDictionary.DateFlag.values()) {
 				isDate = (flag.toUpperCase().endsWith(df.toString()));

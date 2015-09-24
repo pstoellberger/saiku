@@ -15,7 +15,8 @@ public class SaikuDictionary {
 		CURRENTMONTH,
 		LASTMONTH,
 		CURRENTYEAR,
-		LASTYEAR
+		LASTYEAR,
+		IGNORE
 	};
 	
 	public final static String DateFlags = "DateFlags"; 

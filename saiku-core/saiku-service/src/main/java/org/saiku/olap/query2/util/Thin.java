@@ -34,6 +34,7 @@ import org.saiku.olap.query2.filter.ThinFilter;
 import org.saiku.olap.query2.filter.ThinFilter.FilterFlavour;
 import org.saiku.olap.query2.filter.ThinFilter.FilterFunction;
 import org.saiku.olap.query2.filter.ThinFilter.FilterOperator;
+import org.saiku.olap.util.SaikuDictionary.DateFlag;
 import org.saiku.query.IQuerySet;
 import org.saiku.query.ISortableQuerySet;
 import org.saiku.query.Query;
@@ -190,6 +191,9 @@ public class Thin {
 					convertMember(ql.getRangeEnd()), 
 					convertPseudoMember(ql.getRangeEndExpr()), 
 					convertPseudoMember(ql.getRangeEndSyn()));
+			if ( ("F:" + DateFlag.IGNORE.toString()).equals(ql.getRangeEndSyn())) {
+				rangeEnd = null;
+			}
 			
 			if (rangeStart != null) {
 				range.add(rangeStart);
