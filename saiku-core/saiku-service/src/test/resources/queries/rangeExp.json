@@ -112,7 +112,7 @@
     "caption" : "Sales",
     "visible" : true
   },
-  "mdx" : "WITH\nSET [~COLUMNS] AS\n    ([Time].[1998].Lag(1) : [Time].[1998])\nSET [~ROWS] AS\n    Except({[Product].[Product Family].Members}, {[Product].[Non-Consumable]})\nSELECT\n[~COLUMNS] ON COLUMNS,\n[~ROWS] ON ROWS\nFROM [Sales]",
+  "mdx" : "WITH\nSET [~COLUMNS] AS\n    {([Time].[1998].Lag(1) : [Time].[1998])}\nSET [~ROWS] AS\n    Except({[Product].[Product Family].Members}, {[Product].[Non-Consumable]})\nSELECT\n[~COLUMNS] ON COLUMNS,\n[~ROWS] ON ROWS\nFROM [Sales]",
   "name" : "rangeExp",
   "parameters" : {
   },
