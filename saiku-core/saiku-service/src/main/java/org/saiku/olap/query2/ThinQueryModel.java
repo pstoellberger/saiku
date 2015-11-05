@@ -74,9 +74,6 @@ public class ThinQueryModel {
 		return lowestLevelsOnly;
 	}
 
-	/**
-	 * @param visualTotals the visualTotals to set
-	 */
 	public void setLowestLevelsOnly(boolean lowest) {
 		this.lowestLevelsOnly = lowest;
 	}

@@ -669,11 +669,6 @@ public class ExcelWorksheetBuilder {
     }
 
 
-    /**
-     * Find the width in cells of the top left corner of the table
-     *
-     * @return
-     */
     private int findTopLeftCornerWidth() {
 
         int width = 0;
@@ -694,11 +689,6 @@ public class ExcelWorksheetBuilder {
         return width;
     }
 
-    /**
-     * Find the height in cells of the top left corner of the table
-     *
-     * @return
-     */
     private int findTopLeftCornerHeight() {
 
         int height = rowsetHeader.length > 0 ? rowsetHeader.length - 1 : 0;

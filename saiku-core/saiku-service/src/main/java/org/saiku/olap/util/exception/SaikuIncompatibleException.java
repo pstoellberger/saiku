@@ -27,9 +27,8 @@ public class SaikuIncompatibleException extends Exception {
 	}
 	
 	/**
-	 * @see java.lang.Exception#Exception(String))
+	 * @see java.lang.Exception#Exception(String)
 	 */
-
 	public SaikuIncompatibleException(String message) {
 		super(message);
 	}

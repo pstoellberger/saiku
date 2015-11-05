@@ -50,7 +50,6 @@ import org.xml.sax.InputSource;
 
 /**
  * De-Serializes an XML into a PatQuery object
- * @created May 27, 2010 
  * @since 0.8
  * @author Paul Stoellberger
  * 

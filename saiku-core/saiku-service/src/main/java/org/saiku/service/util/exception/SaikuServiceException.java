@@ -27,9 +27,8 @@ public class SaikuServiceException extends RuntimeException {
 	}
 	
 	/**
-	 * @see java.lang.Exception#Exception(String))
+	 * @see java.lang.Exception#Exception(String)
 	 */
-
 	public SaikuServiceException(String message) {
 		super(message);
 	}

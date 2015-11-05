@@ -27,9 +27,8 @@ public class SaikuOlapException extends Exception {
 	}
 	
 	/**
-	 * @see java.lang.Exception#Exception(String))
+	 * @see java.lang.Exception#Exception(String)
 	 */
-
 	public SaikuOlapException(String message) {
 		super(message);
 	}
