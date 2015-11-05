@@ -13,7 +13,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs.FileObject;
 import org.apache.commons.vfs.FileSystemManager;
 import org.apache.commons.vfs.VFS;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.olap4j.Axis;
@@ -40,14 +39,15 @@ import org.saiku.query.SortOrder;
 import org.saiku.query.mdx.IFilterFunction.MdxFunctionType;
 import org.saiku.query.mdx.NFilter;
 import org.saiku.query.metadata.CalculatedMeasure;
-import org.saiku.service.datasource.DatasourceService;
+
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 
 public class ThinQueryServiceTest {
 
 	private TestSaikuContext context;
 	private OlapDiscoverService ods;
-	private DatasourceService ds;
 	private ThinQueryService tqs;
 
 	
@@ -55,7 +55,6 @@ public class ThinQueryServiceTest {
 	public void setUp() throws Exception {
 		context = TestSaikuContext.instance();
 		ods = context.olapDiscoverService;
-		ds = context.datasourceService;
 		tqs = context.thinQueryService;
 	}
 
@@ -67,7 +66,7 @@ public class ThinQueryServiceTest {
 			String name = "dummy";
 			ThinQuery tq = tqs.createEmpty(name, c);
 			ObjectMapper om = new ObjectMapper();
-			String query = om.defaultPrettyPrintingWriter().writeValueAsString(tq);
+			String query = om.writer(new DefaultPrettyPrinter()).writeValueAsString(tq);
 			compareQuery(name, query);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -119,11 +118,12 @@ public class ThinQueryServiceTest {
 			ThinQuery tq = Thin.convert(query, c);
 
 			ObjectMapper om = new ObjectMapper();
-			String first = om.defaultPrettyPrintingWriter().writeValueAsString(tq);
+						
+			String first = om.writer(new DefaultPrettyPrinter()).writeValueAsString(tq);
 
 			Query q2 = Fat.convert(tq, cub);
 			ThinQuery tq2 = Thin.convert(q2, c);
-			String second = om.defaultPrettyPrintingWriter().writeValueAsString(tq2);
+			String second = om.writer(new DefaultPrettyPrinter()).writeValueAsString(tq2);
 			assertEquals(first, second);
 			compareQuery(name, second);
 
@@ -184,7 +184,7 @@ public class ThinQueryServiceTest {
 
 
 			ObjectMapper om = new ObjectMapper();
-			String first = om.defaultPrettyPrintingWriter().writeValueAsString(tq);
+			String first = om.writer(new DefaultPrettyPrinter()).writeValueAsString(tq);
 
 
 			compareQuery(name, first);
@@ -306,8 +306,8 @@ public class ThinQueryServiceTest {
 			
 			ObjectMapper om = new ObjectMapper();
 			
-			String first = om.defaultPrettyPrintingWriter().writeValueAsString(thinModQ);
-			String second = om.defaultPrettyPrintingWriter().writeValueAsString(fatModQ);
+			String first = om.writer(new DefaultPrettyPrinter()).writeValueAsString(thinModQ);
+			String second = om.writer(new DefaultPrettyPrinter()).writeValueAsString(fatModQ);
 			
 			assertEquals(first, second);
 			compareQuery(name, first);
@@ -323,7 +323,7 @@ public class ThinQueryServiceTest {
 			
 			q = Fat.convert(tq, cub);
 			ThinQuery dateFlags = Thin.convert(q, c);
-			String third = om.defaultPrettyPrintingWriter().writeValueAsString(dateFlags);
+			String third = om.writer(new DefaultPrettyPrinter()).writeValueAsString(dateFlags);
 			compareQuery("rangeExpFlag", third);
 			
 			ThinMember curExact = new ThinMember(null, "F:2015-08-25EXACT", null);
@@ -335,7 +335,7 @@ public class ThinQueryServiceTest {
 			
 			q = Fat.convert(tq, cub);
 			ThinQuery dateFlagsExact = Thin.convert(q, c);
-			String fourth = om.defaultPrettyPrintingWriter().writeValueAsString(dateFlagsExact);
+			String fourth = om.writer(new DefaultPrettyPrinter()).writeValueAsString(dateFlagsExact);
 			compareQuery("rangeExpFlagExact", fourth);
 
 		} catch (Exception e) {
@@ -355,7 +355,7 @@ public class ThinQueryServiceTest {
 			String mdx = "SELECT Gender.Members on COLUMNS, Measures.Profit on ROWS from Sales";
 			ThinQuery tq = new ThinQuery(name, c, mdx);
 			ObjectMapper om = new ObjectMapper();
-			String first = om.defaultPrettyPrintingWriter().writeValueAsString(tq);
+			String first = om.writer(new DefaultPrettyPrinter()).writeValueAsString(tq);
 
 			compareQuery(name, first);
 

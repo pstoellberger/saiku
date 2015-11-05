@@ -15,29 +15,28 @@
  */
 package org.saiku.datasources.datasource;
 
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.Properties;
 
 public class SaikuDatasource {
 
 	private String name;
-	private Type type;	
+	private Type type;
 	private Properties properties;
 
-	public SaikuDatasource() {} 
-	
-	public SaikuDatasource(String name, Type type, Properties properties) {
+	public SaikuDatasource() {
+	}
+
+	public SaikuDatasource( String name, Type type, Properties properties ) {
 		this.name = name;
 		this.type = type;
 		this.properties = properties;
 	}
 
-	
+
 	public enum Type {
 		OLAP
 	}
-	
+
 	public String getName() {
 		return name;
 	}
@@ -51,11 +50,11 @@ public class SaikuDatasource {
 	public Properties getProperties() {
 		return properties;
 	}
-	
+
 	@Override
 	public SaikuDatasource clone() {
 		Properties props = (Properties) properties.clone();
-		return new SaikuDatasource(name, type, props);
+		return new SaikuDatasource( name, type, props );
 	}
 
 }

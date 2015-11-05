@@ -110,9 +110,10 @@ public class OlapMetaExplorerTest {
     }
     /**
      * Make sure you can grab a cube from a specified connection.
+     * @throws SaikuOlapException 
      */
     @Test
-    public final void testGetCubesSingleConnection(){
+    public final void testGetCubesSingleConnection() throws SaikuOlapException{
         List<SaikuCube> output = olapMetaExplorer.getCubes("test");
 
         assertNotNull(output);
@@ -122,9 +123,10 @@ public class OlapMetaExplorerTest {
     
     /**
      * Make sure you can grab a cube from a specified connection.
+     * @throws SaikuOlapException 
      */
     @Test
-    public final void testGetCubesMultipleConnections(){
+    public final void testGetCubesMultipleConnections() throws SaikuOlapException{
         List<String> cubes = new ArrayList<String>();
         cubes.add("test");
         List<SaikuCube> output = olapMetaExplorer.getCubes(cubes);
@@ -139,9 +141,10 @@ public class OlapMetaExplorerTest {
     
     /**
      * Test to make sure you can retrieve all the cubes from a schema.
+     * @throws SaikuOlapException 
      */
     @Test
-    public final void testGetAllCubes(){
+    public final void testGetAllCubes() throws SaikuOlapException{
         List<SaikuCube> output = olapMetaExplorer.getAllCubes();
         
         assertNotNull(output);
@@ -160,9 +163,10 @@ public class OlapMetaExplorerTest {
     
     /**
      * Test to make sure that the cubes are returned in the same order.
+     * @throws SaikuOlapException 
      */
     @Test
-    public final void testCubeReturnOrder(){
+    public final void testCubeReturnOrder() throws SaikuOlapException{
     	 List<SaikuCube> output = olapMetaExplorer.getAllCubes();
     	 
          assertNotNull(output);
@@ -324,7 +328,7 @@ public class OlapMetaExplorerTest {
     
     
     @BeforeClass
-    public static void setup() throws IOException{
+    public static void setup() throws IOException, SaikuOlapException{
     	olapMetaExplorer = TestSaikuContext.instance().olapMetaExplorer;
 
     }

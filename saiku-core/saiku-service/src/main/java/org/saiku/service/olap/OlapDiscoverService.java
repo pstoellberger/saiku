@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import mondrian.rolap.RolapConnection;
 
@@ -53,7 +52,7 @@ public class OlapDiscoverService implements Serializable {
 		metaExplorer = new OlapMetaExplorer(ds.getConnectionManager());
 	}
 	
-	public List<SaikuCube> getAllCubes() {
+	public List<SaikuCube> getAllCubes() throws SaikuOlapException {
 		return metaExplorer.getAllCubes();
 	}
 

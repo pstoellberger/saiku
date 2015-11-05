@@ -1,15 +1,15 @@
 package org.saiku.olap.query2;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
-import org.codehaus.jackson.annotate.JsonIgnore;
 import org.saiku.olap.dto.SaikuCube;
 import org.saiku.olap.query2.util.ServiceUtil;
 import org.saiku.service.util.ISaikuQuery;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class ThinQuery implements ISaikuQuery {
 	
