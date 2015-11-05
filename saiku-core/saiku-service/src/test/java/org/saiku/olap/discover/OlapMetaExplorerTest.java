@@ -98,7 +98,7 @@ public class OlapMetaExplorerTest {
      * Test to prove that non existant connection currently throws NPE.
      * @throws Exception
      */
-    @Test(expected = NullPointerException.class)
+    @Test(expected = SaikuOlapException.class)
     public void testForExpectedExceptionWithAnnotation()
             throws Exception {
         olapMetaExplorer.getConnection("noname");

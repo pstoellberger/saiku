@@ -65,17 +65,8 @@ public interface ISaikuConnection {
 
 	boolean clearCache() throws Exception;
 
-
-	/**
-	 * @return true if the connection has been properly initialized.
-	 */
 	boolean initialized();
 
-	/**
-	 * returns the type of connection
-	 *
-	 * @return
-	 */
 	String getDatasourceType();
 
 	Connection getConnection();
