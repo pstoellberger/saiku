@@ -109,12 +109,9 @@
   "parameters" : {
     "productFamilyList" : "[Product].[Food]"
   },
-  "plugins" : {
-  },
-  "properties" : {
-  },
-  "metadata" : {
-  },
+  "plugins" : { },
+  "properties" : { },
+  "metadata" : { },
   "queryType" : "OLAP",
   "type" : "QUERYMODEL"
 }

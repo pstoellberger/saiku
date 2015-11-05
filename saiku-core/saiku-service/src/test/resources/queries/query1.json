@@ -139,8 +139,7 @@
       "name" : "Double Profit",
       "uniqueName" : "[Measures].[Double Profit]",
       "caption" : "Double Profit",
-      "properties" : {
-      },
+      "properties" : { },
       "formula" : "( [Measures].[Store Sales] - [Measures].[Store Cost]) * 2",
       "hierarchyName" : "[Measures]"
     } ]
@@ -156,14 +155,10 @@
   },
   "mdx" : "WITH\nSET [~COLUMNS_Product_Product] AS\n    TopCount(Except({[Product].[Product Family].Members}, {[Product].[Non-Consumable]}), 2, Measures.[Unit Sales])\nSET [~COLUMNS_Education Level_Education Level] AS\n    {[Education Level].[Education Level].Members}\nMEMBER [Measures].[Double Profit] AS\n    (([Measures].[Store Sales] - [Measures].[Store Cost]) * 2)\nSET [~ROWS] AS\n    {[Gender].[F]}\nSELECT\nCrossJoin(Order(CrossJoin([~COLUMNS_Product_Product], [~COLUMNS_Education Level_Education Level]), [Measures].[Double Profit], BDESC), {[Measures].[Double Profit], [Measures].[Unit Sales]}) ON COLUMNS,\n[~ROWS] ON ROWS\nFROM [Sales]",
   "name" : "query1",
-  "parameters" : {
-  },
-  "plugins" : {
-  },
-  "properties" : {
-  },
-  "metadata" : {
-  },
+  "parameters" : { },
+  "plugins" : { },
+  "properties" : { },
+  "metadata" : { },
   "queryType" : "OLAP",
   "type" : "QUERYMODEL"
 }
