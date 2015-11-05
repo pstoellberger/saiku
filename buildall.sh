@@ -11,6 +11,6 @@ git checkout dev
 git pull origin dev
 cd ..
 echo "Building Everything"
-mvn clean package
+mvn clean install
 #cd ../saiku-bi-platform-plugin-p5
 #mvn clean package
