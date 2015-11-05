@@ -13,7 +13,7 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package org.saiku.web.impl;
+package org.saiku.web.connection;
 
 import java.io.Serializable;
 import java.sql.Connection;

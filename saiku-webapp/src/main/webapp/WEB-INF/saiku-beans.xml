@@ -14,7 +14,7 @@
 		<property name="authenticationManager" ref="authenticationManager" />
 	</bean>
 
-	<bean id="connectionManager" class="org.saiku.web.impl.SecurityAwareConnectionManager" init-method="init" destroy-method="destroy">
+	<bean id="connectionManager" class="org.saiku.web.connection.SecurityAwareConnectionManager" init-method="init" destroy-method="destroy">
 		<property name="dataSourceManager" ref="classpathDsManager" />
 		<property name="sessionService" ref="sessionService" />
 

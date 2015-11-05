@@ -66,7 +66,7 @@
 # you can even define filter patterns for it (optional!)
 # to use it add this to your datasource configuration:
 
-# datasource.processors=org.saiku.web.impl.RoleDatasourceProcessor
+# datasource.processors=org.saiku.web.connection.RoleDatasourceProcessor
 # security.enabled=true
 # role.filter=saiku,other
 
