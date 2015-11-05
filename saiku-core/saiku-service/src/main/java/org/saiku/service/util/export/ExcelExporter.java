@@ -13,7 +13,7 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package org.saiku.service.util.export.excel;
+package org.saiku.service.util.export;
 
 import java.util.List;
 
@@ -24,6 +24,8 @@ import org.saiku.olap.util.OlapResultSetUtil;
 import org.saiku.olap.util.formatter.FlattenedCellSetFormatter;
 import org.saiku.olap.util.formatter.HierarchicalCellSetFormatter;
 import org.saiku.olap.util.formatter.ICellSetFormatter;
+import org.saiku.service.util.export.excel.ExcelBuilderOptions;
+import org.saiku.service.util.export.excel.ExcelWorksheetBuilder;
 
 public class ExcelExporter {
 

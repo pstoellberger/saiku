@@ -1,24 +1,24 @@
 package org.saiku.service.olap.totals.aggregators;
 
-import org.olap4j.metadata.Measure;
-
 import mondrian.util.Format;
+import org.olap4j.metadata.Measure;
 
 
 public class MinAggregator extends TotalAggregator {
-	
-	protected MinAggregator(Format format) {
-		super(format);
+
+	MinAggregator(Format format) {
+		super( format );
 	}
 
-	Double min = null;
+	private Double min = null;
 
 	@Override
-	public void addData(double data) {
-		if (min == null)
+	public void addData( double data ) {
+		if ( min == null ) {
 			min = data;
-		else if (min > data)
+		} else if ( min > data ) {
 			min = data;
+		}
 	}
 
 	@Override
@@ -27,8 +27,8 @@ public class MinAggregator extends TotalAggregator {
 	}
 
 	@Override
-	public TotalAggregator newInstance(Format format, Measure measure) {
-		return new MinAggregator(format);
+	public TotalAggregator newInstance( Format format, Measure measure ) {
+		return new MinAggregator( format );
 	}
-	
+
 }

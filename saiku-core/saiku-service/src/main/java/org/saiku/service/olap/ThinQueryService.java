@@ -87,8 +87,8 @@ import org.saiku.service.util.QueryContext.ObjectKey;
 import org.saiku.service.util.QueryContext.Type;
 import org.saiku.service.util.exception.SaikuServiceException;
 import org.saiku.service.util.export.CsvExporter;
+import org.saiku.service.util.export.ExcelExporter;
 import org.saiku.service.util.export.excel.ExcelBuilderOptions;
-import org.saiku.service.util.export.excel.ExcelExporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

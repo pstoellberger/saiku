@@ -1,9 +1,9 @@
 package org.saiku.service.util.export.excel;
 
 public class ExcelBuilderOptions {
-	protected boolean repeatValues = true;
-	protected String sheetName = null;
-	protected boolean showTotals = false;
+	public boolean repeatValues = true;
+	public String sheetName = null;
+	public boolean showTotals = false;
 	public boolean bodyCellBorder = false;
 	
 	public ExcelBuilderOptions() {};
