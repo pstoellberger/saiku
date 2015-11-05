@@ -38,7 +38,6 @@ import org.pentaho.platform.plugin.services.pluginmgr.PluginClassLoader;
 import org.saiku.plugin.util.ResourceManager;
 import org.saiku.plugin.util.packager.Packager;
 import org.saiku.service.datasource.DatasourceService;
-import org.saiku.service.olap.OlapQueryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,9 +54,6 @@ import org.springframework.stereotype.Component;
 public class PluginResource {
 
 	private static final Logger log = LoggerFactory.getLogger(PluginResource.class);
-
-	@Autowired
-	private OlapQueryService queryService;
 
 	@Autowired
 	private DatasourceService datasourceService;

@@ -20,7 +20,6 @@ import java.io.OutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.UUID;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -141,7 +140,7 @@ public class ServletAdapterContentGenerator extends BaseContentGenerator {
 					Response r = null;
 
 					if (exportType == null || "XLS".equals(exportType.toUpperCase())) {
-						r = ex.exportExcel(file, null, null);
+						r = ex.exportExcel(file, null, false, true, null);
 						mimeType = "application/vnd.ms-excel";
 						filename += ".xls";
 						
