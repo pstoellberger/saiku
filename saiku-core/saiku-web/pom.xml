@@ -224,6 +224,11 @@
 			<version>1.4</version>
 		</dependency>
 		<dependency>
+			<groupId>commons-dbutils</groupId>
+			<artifactId>commons-dbutils</artifactId>
+			<version>1.6</version>
+		</dependency>
+		<dependency>
 			<groupId>commons-vfs</groupId>
 			<artifactId>commons-vfs</artifactId>
 			<version>1.0</version>
