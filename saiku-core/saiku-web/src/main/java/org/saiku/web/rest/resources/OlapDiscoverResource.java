@@ -19,7 +19,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -56,9 +55,6 @@ public class OlapDiscoverResource implements Serializable {
         olapDiscoverService = olapds;
     }
     
-    /**
-     * Returns the datasources available.
-     */
     @GET
     @Produces({"application/json" })
      public List<SaikuConnection> getConnections() {
@@ -223,10 +219,6 @@ public class OlapDiscoverResource implements Serializable {
 		return new ArrayList<SaikuLevel>();
 	}
 
-	/**
-	 * Get level information.
-	 * @return 
-	 */
 	@GET
 	@Produces({"application/json" })
 	@Path("/{connection}/{catalog}/{schema}/{cube}/dimensions/{dimension}/hierarchies/{hierarchy}/levels/{level}")
@@ -253,10 +245,6 @@ public class OlapDiscoverResource implements Serializable {
 		return new ArrayList<SimpleCubeElement>();
 	}
    
-	/**
-	 * Get root member of that hierarchy.
-	 * @return 
-	 */
 	@GET
 	@Produces({"application/json" })
 	@Path("/{connection}/{catalog}/{schema}/{cube}/hierarchies/{hierarchy}/rootmembers")
@@ -318,10 +306,6 @@ public class OlapDiscoverResource implements Serializable {
 		return new ArrayList<SaikuMember>();
 	}
 	
-	/**
-	 * Get all info for given member
-	 * @return 
-	 */
 	@GET
 	@Produces({"application/json" })
 	@Path("/{connection}/{catalog}/{schema}/{cube}/member/{member}")
@@ -344,10 +328,6 @@ public class OlapDiscoverResource implements Serializable {
 		return null;
 	}
 	
-	/**
-	 * Get child members of given member
-	 * @return 
-	 */
 	@GET
 	@Produces({"application/json" })
 	@Path("/{connection}/{catalog}/{schema}/{cube}/member/{member}/children")

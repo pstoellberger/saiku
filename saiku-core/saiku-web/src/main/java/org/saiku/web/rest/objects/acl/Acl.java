@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -18,12 +17,13 @@ import org.apache.commons.vfs.FileSystemManager;
 import org.apache.commons.vfs.FileType;
 import org.apache.commons.vfs.NameScope;
 import org.apache.commons.vfs.VFS;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.type.TypeFactory;
 import org.saiku.web.rest.objects.acl.enumeration.AclMethod;
 import org.saiku.web.rest.resources.BasicRepositoryResource2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * main object to which one can query resources access
@@ -86,7 +86,7 @@ public class Acl {
 
 	/**
 	 * Returns the access method to the specified resource for the user or role
-	 * @param resource the resource to which you want to access
+	 * @param path the resource to which you want to access
 	 * @param username the username of the user that's accessing
 	 * @param roles the role of the user that's accessing
 	 * @return {@link AclMethod}
@@ -181,7 +181,7 @@ public class Acl {
 
 	/**
 	 * helper method to add an acl entry
-	 * @param resource resource for which we're setting the 
+	 * @param path resource for which we're setting the 
 	 * access control
 	 * @param entry
 	 */
@@ -282,8 +282,9 @@ public class Acl {
 			if ( accessFile != null && accessFile.exists()) {
 				InputStreamReader reader = new InputStreamReader(accessFile.getContent().getInputStream());
 				BufferedReader br = new BufferedReader(reader);
-				acl = (Map<String, AclEntry>) mapper.readValue(br, TypeFactory
-						.mapType(HashMap.class, String.class, AclEntry.class));
+				JavaType ac = mapper.getTypeFactory().uncheckedSimpleType(AclEntry.class);
+				JavaType st = mapper.getTypeFactory().uncheckedSimpleType(String.class);
+				acl = mapper.readValue(br, mapper.getTypeFactory().constructMapType(Map.class, st, ac));
 			}
 		} catch (Exception e) {
 			logger.error("Error reading the json file:" + accessFile, e);
@@ -292,17 +293,13 @@ public class Acl {
 		return acl;
 	}
 
-	/**
-	 * Returns the list of the administrator roles
-	 * @return
-	 */
 	public List<String> getAdminRoles() {
 		return adminRoles;
 	}
 	/**
 	 * Checks if a specific role is in the list of the admin roles
 	 * @param role
-	 * @return
+	 * @return boolean
 	 */
 	private boolean isAdminRole(String role){
 		return adminRoles.contains(role);
@@ -310,7 +307,7 @@ public class Acl {
 	/**
 	 * Checks if a list of roles contains an admin role
 	 * @param roles
-	 * @return
+	 * @return boolean
 	 */
 	private boolean isAdminRole(List<String> roles){
 		for (String role:roles)

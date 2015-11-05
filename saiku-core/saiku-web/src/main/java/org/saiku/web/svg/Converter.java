@@ -5,12 +5,20 @@ package org.saiku.web.svg;
  * @since 1/15/13, 10:29 AM
  */
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
-import org.apache.batik.transcoder.*;
-import org.apache.batik.transcoder.image.*;
-import org.apache.commons.io.*;
-import org.apache.fop.svg.*;
+import org.apache.batik.transcoder.SVGAbstractTranscoder;
+import org.apache.batik.transcoder.Transcoder;
+import org.apache.batik.transcoder.TranscoderException;
+import org.apache.batik.transcoder.TranscoderInput;
+import org.apache.batik.transcoder.TranscoderOutput;
+import org.apache.batik.transcoder.image.JPEGTranscoder;
+import org.apache.batik.transcoder.image.PNGTranscoder;
+import org.apache.batik.transcoder.image.TIFFTranscoder;
+import org.apache.batik.transcoder.print.PrintTranscoder;
+import org.apache.commons.io.IOUtils;
 
 public abstract class Converter
 {
@@ -139,6 +147,6 @@ class PdfConverter extends BatikConverter
         super("application/pdf", "pdf");
     }
 
-    protected Transcoder createTranscoder() {return new PDFTranscoder();}
+    protected Transcoder createTranscoder() {return new PrintTranscoder();}
 
 }

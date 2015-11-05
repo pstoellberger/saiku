@@ -42,53 +42,32 @@ public class AclEntry {
 	public AclEntry () {
 		this(STATIC_OWNER);
 	}
-	/**
-	 * Constructor. Creates an acl entry owned by <pre>owner</pre> with default
-	 * access type
-	 * @param owner
-	 */
+
 	private AclEntry (String owner) {
 		if ( owner == null || owner.length() == 0) throw new IllegalArgumentException("Owner of the resource is mandatory");
 		this.owner = owner;
 	}
-	/**
-	 * Constructor. Creates an acl entry owned by <pre>owner</pre> with access
-	 * type <pre>type</pre>
-	 * @param owner
-	 * @param type
-	 */
+
 	public AclEntry (String owner, AclType type, Map<String,List<AclMethod>> roles, Map<String,List<AclMethod>> users) {
 		this(owner);
 		this.type = type;
 		this.users = users;
 		this.roles = roles;
 	}
-	/**
-	 * returns the owner of the resource
-	 * @return
-	 */
+
 	public String getOwner() {
 		return owner;
 	}
-	/**
-	 * returns the type of access of the file
-	 * @return
-	 */
+
 	public AclType getType() {
 		return type;
 	}
-	/**
-	 * returns the list of the roles and their grants
-	 * @return
-	 */
+
 	public Map<String, List<AclMethod>> getRoles() {
 		return roles;
 	}
 
-	/**
-	 * returns the list of the users and their grants
-	 * @return
-	 */
+
 	public Map<String, List<AclMethod>> getUsers() {
 		return users;
 	}

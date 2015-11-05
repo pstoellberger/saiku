@@ -19,7 +19,7 @@ public enum AclMethod {
 	 * calculates the higher (more privileges) of two access methods
 	 * @param method1 
 	 * @param method2
-	 * @return
+	 * @return {@link AclMethod}
 	 */
 	public static AclMethod max(AclMethod method1, AclMethod method2 ) {
 		if ( method1 == null ) {
@@ -35,7 +35,7 @@ public enum AclMethod {
 	 * Calculates the lower ( less privileges ) of two access methods
 	 * @param method1
 	 * @param method2
-	 * @return
+	 * @return {@link AclMethod}
 	 */
 	public static AclMethod min(AclMethod method1, AclMethod method2 ) {
 		if ( method1 == null ) {
@@ -50,7 +50,7 @@ public enum AclMethod {
 	/**
 	 * Calculates the higher ( more privileges ) of a list of access methods
 	 * @param methods
-	 * @return
+	 * @return {@link AclMethod}
 	 */
 	public static AclMethod max(List<AclMethod> methods) {
 		if ( methods != null && methods.size() > 0 ) {
@@ -67,7 +67,7 @@ public enum AclMethod {
 	/**
 	 * Calculates the lowest (less privileges ) of a list of access methods
 	 * @param methods
-	 * @return
+	 * @return {@link AclMethod}
 	 */
 	public static AclMethod min(List<AclMethod> methods) {
 		if ( methods != null && methods.size() > 0 ) {
@@ -90,7 +90,7 @@ public enum AclMethod {
 	 * <li> {@link AclMethod#GRANT} : 3</li>
 	 * </ul>
 	 * @param method
-	 * @return
+	 * @return int
 	 */
 	public static int toInt(AclMethod method ){
 		switch (method) {

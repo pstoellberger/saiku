@@ -54,7 +54,6 @@ import org.apache.commons.vfs.FileSystemManager;
 import org.apache.commons.vfs.FileType;
 import org.apache.commons.vfs.FileUtil;
 import org.apache.commons.vfs.VFS;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.saiku.service.ISessionService;
 import org.saiku.service.util.exception.SaikuServiceException;
 import org.saiku.web.rest.objects.acl.Acl;
@@ -67,6 +66,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.multipart.FormDataParam;
 

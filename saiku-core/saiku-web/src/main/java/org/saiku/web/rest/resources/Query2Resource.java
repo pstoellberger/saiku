@@ -48,8 +48,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.type.TypeFactory;
 import org.saiku.olap.dto.SimpleCubeElement;
 import org.saiku.olap.dto.resultset.CellDataSet;
 import org.saiku.olap.query2.ThinQuery;
@@ -65,6 +63,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.CollectionType;
 
 @Component
 @Path("/saiku/api/query")
@@ -88,10 +90,6 @@ public class Query2Resource {
 	}
 
 
-	/**
-	 * Delete query from the query pool.
-	 * @return a HTTP 410(Works) or HTTP 500(Call failed).
-	 */
 	@DELETE
 	@Path("/{queryname}")
 	public Status deleteQuery(@PathParam("queryname") String queryName){
@@ -108,19 +106,6 @@ public class Query2Resource {
 		}
 	}
 
-	/**
-	 * Create a new Saiku Query.
-	 * @param connectionName the name of the Saiku connection.
-	 * @param cubeName the name of the cube.
-	 * @param catalogName the catalog name.
-	 * @param schemaName the name of the schema.
-	 * @param queryName the name you want to assign to the query.
-	 * @return 
-	 * 
-	 * @return a query model.
-	 * 
-	 * @see 
-	 */
 	@POST
 	@Produces({"application/json" })
 	@Path("/{queryname}")
@@ -349,7 +334,9 @@ public class Query2Resource {
 			List<List<Integer>> realPositions = new ArrayList<List<Integer>>();
 			if (StringUtils.isNotBlank(positionListString)) {
 				ObjectMapper mapper = new ObjectMapper();
-				String[] positions = mapper.readValue(positionListString, TypeFactory.arrayType(String.class));
+
+				String[] positions = mapper.readValue(positionListString,
+						mapper.getTypeFactory().constructArrayType(String.class));
 				if (positions != null && positions.length > 0) {
 					for (String position : positions) {
 						String[] rPos = position.split(":");
@@ -546,7 +533,7 @@ public class Query2Resource {
 			return Response.serverError().entity(e.getMessage()).status(Status.INTERNAL_SERVER_ERROR).build();
 		}
 	}
-	
+
 	@GET
 	@Produces({"text/html" })
 	@Path("/{queryname}/export/html")
@@ -560,7 +547,7 @@ public class Query2Resource {
 		ThinQuery tq = thinQueryService.getContext(queryname).getOlapQuery();
 		return exportHtml(tq, format, css, tableonly, wrapcontent);
 	}
-	
+
 	@POST
 	@Produces({"text/html" })
 	@Path("/export/html")
@@ -571,7 +558,7 @@ public class Query2Resource {
 			@QueryParam("tableonly") @DefaultValue("false") Boolean tableonly,
 			@QueryParam("wrapcontent") @DefaultValue("true") Boolean wrapcontent)
 	{
-		
+
 		try {
 			CellDataSet cs = null;
 			if (StringUtils.isNotBlank(format)) {
@@ -624,7 +611,9 @@ public class Query2Resource {
 				cellPosition.add(pInt);
 			}
 			ObjectMapper mapper = new ObjectMapper();
-			Map<String, List<String>> levels = mapper.readValue(returns, TypeFactory.mapType(Map.class, TypeFactory.fromClass(String.class),  TypeFactory.collectionType(ArrayList.class, String.class)));
+			CollectionType ct = mapper.getTypeFactory().constructCollectionType(ArrayList.class, String.class);
+			JavaType st = mapper.getTypeFactory().uncheckedSimpleType(String.class);
+			Map<String, List<String>> levels = mapper.readValue(returns, mapper.getTypeFactory().constructMapType(Map.class, st, ct));
 			ThinQuery q = thinQueryService.drillacross(queryName, cellPosition, levels);
 			return q;
 

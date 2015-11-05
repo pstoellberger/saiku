@@ -5,11 +5,12 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringWriter;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 import org.saiku.web.rest.objects.resultset.QueryResult;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class JSConverter {
 

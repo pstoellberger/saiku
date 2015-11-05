@@ -71,11 +71,6 @@ public class DataSourceResource {
 		return(Status.GONE);
     }
     
-    /**
-     * Get Data Source.
-     * @param datasourceName.
-     * @return A Saiku Datasource.
-     */
     @GET
     @Produces({"application/json" })
 	@Path("/{datasource}")
