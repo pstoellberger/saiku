@@ -77,14 +77,12 @@ public class Query2Resource {
 
 	private ThinQueryService thinQueryService;
 
-	@Autowired
 	public void setThinQueryService(ThinQueryService tqs) {
 		thinQueryService = tqs;
 	}
 
 	private ISaikuRepository repository;
 
-	@Autowired
 	public void setRepository(ISaikuRepository repository){
 		this.repository = repository;
 	}

@@ -14,7 +14,13 @@
 
 	<build>
 		<plugins>
-
+		<plugin>            
+		  <groupId>org.apache.maven.plugins</groupId>
+		  <artifactId>maven-war-plugin</artifactId>
+		  <configuration>
+		    <webXml>src\main\webapp\WEB-INF\web.xml</webXml>        
+		  </configuration>
+		</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-antrun-plugin</artifactId>
@@ -148,11 +154,6 @@
             <groupId>org.jvnet.mimepull</groupId>
             <artifactId>mimepull</artifactId>
         </dependency>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-        </dependency>
-        
         <dependency>
             <groupId>hsqldb</groupId>
             <artifactId>hsqldb</artifactId>

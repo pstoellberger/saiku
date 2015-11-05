@@ -12,11 +12,6 @@
 	<name>saiku - web</name>
 	<packaging>jar</packaging>
 
-	<properties>
-		<spring.version>3.0.3.RELEASE</spring.version>
-		<spring.security.version>3.0.3.RELEASE</spring.security.version>
-	</properties>
-
 	<build>
 
 		<plugins>
@@ -92,7 +87,10 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
 		</dependency>
-
+		<dependency>
+        	<groupId>org.springframework</groupId>
+            <artifactId>spring-aop</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>com.sun.jersey</groupId>
 			<artifactId>jersey-core</artifactId>
@@ -115,6 +113,14 @@
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-web</artifactId>
 		</dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-config</artifactId>
+        </dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-core</artifactId>
