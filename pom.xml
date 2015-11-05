@@ -8,6 +8,7 @@
     <packaging>pom</packaging>
     <name>Saiku Module Project</name>
     <modules>
+        <module>saiku-query</module>
         <module>saiku-core</module>
         <module>saiku-ui</module>
         <module>saiku-webapp</module>
