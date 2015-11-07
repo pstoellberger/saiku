@@ -150,7 +150,7 @@ public class BasicRepositoryResource2 implements ISaikuRepository {
 				if ( !acl.canRead(path,username, roles) ) {
 					return new ArrayList<IRepositoryObject>(); // empty  
 				} else {
-					return getRepositoryObjects(folder, type);
+					objects = getRepositoryObjects(folder, type);
 				}
 			}
 			else {
