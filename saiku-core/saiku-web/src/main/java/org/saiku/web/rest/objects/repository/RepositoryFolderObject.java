@@ -1,10 +1,11 @@
 package org.saiku.web.rest.objects.repository;
 
-import java.util.List;
-
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import org.saiku.web.rest.objects.acl.enumeration.AclMethod;
 
+import java.util.List;
 
+@JsonTypeName("FOLDER")
 public class RepositoryFolderObject implements IRepositoryObject {
 
 	private Type type;

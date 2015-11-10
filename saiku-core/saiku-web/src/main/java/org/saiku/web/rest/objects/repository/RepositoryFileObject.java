@@ -1,11 +1,12 @@
 package org.saiku.web.rest.objects.repository;
 
-import java.util.List;
-
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import org.saiku.web.rest.objects.acl.enumeration.AclMethod;
 
+import java.util.List;
 
 
+@JsonTypeName("FILE")
 public class RepositoryFileObject implements IRepositoryObject {
 
 	private Type type;
