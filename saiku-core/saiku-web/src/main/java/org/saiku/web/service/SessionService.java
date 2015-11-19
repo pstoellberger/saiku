@@ -118,7 +118,7 @@ public class SessionService implements ISessionService {
 			session.put("sessionid", UUID.randomUUID().toString());
 			session.put("authid", RequestContextHolder.currentRequestAttributes().getSessionId());
 			List<String> roles = new ArrayList<>();
-			for (GrantedAuthority ga : SecurityContextHolder.getContext().getAuthentication().getAuthorities()) {
+			for (GrantedAuthority ga : auth.getAuthorities()) {
 				roles.add(ga.getAuthority());
 			}
 			session.put("roles", roles);
