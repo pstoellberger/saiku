@@ -14,10 +14,6 @@ public class Env {
     public static String SAIKU_HOME = "SAIKU_HOME";
     public static String SAIKU_HOME_FOLDER = ".saiku";
 
-    public static void main(String[] args) {
-        System.out.println(resolve("$(SAIKU_HOME)/saiku-repository"));
-    }
-
     public static String resolve(String content) {
         Map<String, String> parameters = new HashMap<>();
         final Pattern p = Pattern.compile("\\$\\((.*?)\\)");
