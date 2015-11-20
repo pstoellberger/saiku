@@ -23,7 +23,7 @@
     <orderEntry type="library" name="Maven: org.springframework.security:spring-security-web:4.0.1.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-web:4.1.6.RELEASE" level="project" />
     <orderEntry type="module" module-name="saiku-service" />
-    <orderEntry type="module" module-name="saiku-query" />
+    <orderEntry type="library" name="Maven: org.saiku:saiku-query:0.1-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: org.olap4j:olap4j:1.2.0" level="project" />
     <orderEntry type="library" name="Maven: net.java.dev.javacc:javacc:5.0" level="project" />
     <orderEntry type="library" name="Maven: pentaho:mondrian:3.9.0.2" level="project" />

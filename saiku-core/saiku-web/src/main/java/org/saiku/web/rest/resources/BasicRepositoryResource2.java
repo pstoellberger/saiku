@@ -55,6 +55,7 @@ import org.apache.commons.vfs.FileType;
 import org.apache.commons.vfs.FileUtil;
 import org.apache.commons.vfs.VFS;
 import org.saiku.service.ISessionService;
+import org.saiku.service.util.Env;
 import org.saiku.service.util.exception.SaikuServiceException;
 import org.saiku.web.rest.objects.acl.Acl;
 import org.saiku.web.rest.objects.acl.AclEntry;
@@ -93,7 +94,8 @@ public class BasicRepositoryResource2 implements ISaikuRepository {
 			 if (!path.endsWith("" + File.separatorChar)) {
 				path += File.separatorChar;
 			}
-			fileSystemManager = VFS.getManager();
+            path = Env.resolve(path);
+            fileSystemManager = VFS.getManager();
 			FileObject fileObject;
 			fileObject = fileSystemManager.resolveFile(path);
 			if (fileObject == null) {

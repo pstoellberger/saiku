@@ -32,6 +32,7 @@ import org.apache.commons.vfs.FileSystemManager;
 import org.apache.commons.vfs.VFS;
 import org.saiku.datasources.datasource.SaikuDatasource;
 import org.saiku.datasources.datasource.SaikuDatasource.Type;
+import org.saiku.service.util.Env;
 import org.saiku.service.util.exception.SaikuServiceException;
 
 public class ClassPathResourceDatasourceManager implements IDatasourceManager {
@@ -59,7 +60,7 @@ public class ClassPathResourceDatasourceManager implements IDatasourceManager {
 		FileSystemManager fileSystemManager;
 		try {
 			fileSystemManager = VFS.getManager();
-
+            path = Env.resolve(path);
 			FileObject fileObject;
 			fileObject = fileSystemManager.resolveFile(path);
 			if (fileObject == null) {

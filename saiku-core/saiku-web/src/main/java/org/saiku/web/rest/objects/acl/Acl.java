@@ -17,6 +17,7 @@ import org.apache.commons.vfs.FileSystemManager;
 import org.apache.commons.vfs.FileType;
 import org.apache.commons.vfs.NameScope;
 import org.apache.commons.vfs.VFS;
+import org.saiku.service.util.Env;
 import org.saiku.web.rest.objects.acl.enumeration.AclMethod;
 import org.saiku.web.rest.resources.BasicRepositoryResource2;
 import org.slf4j.Logger;
@@ -52,6 +53,7 @@ public class Acl {
 			}
 			fileSystemManager = VFS.getManager();
 			FileObject fileObject;
+            path = Env.resolve(path);
 			fileObject = fileSystemManager.resolveFile(path);
 			if (fileObject == null) {
 				throw new IOException("File cannot be resolved: " + path);
