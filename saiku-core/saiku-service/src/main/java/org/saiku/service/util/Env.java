@@ -14,9 +14,13 @@ public class Env {
     public static String SAIKU_HOME = "SAIKU_HOME";
     public static String SAIKU_HOME_FOLDER = ".saiku";
 
+    public static void main(String[] args) {
+        System.out.println(resolve("$(SAIKU_HOME)/saiku-repository"));
+    }
+
     public static String resolve(String content) {
         Map<String, String> parameters = new HashMap<>();
-        final Pattern p = Pattern.compile("\\$\\{(.*?)\\}");
+        final Pattern p = Pattern.compile("\\$\\((.*?)\\)");
         final Matcher m = p.matcher(content);
         while (m.find()) {
             String var = m.group(1);
@@ -35,7 +39,7 @@ public class Env {
         for (String parameter : parameters.keySet()) {
             String value = Matcher.quoteReplacement(parameters.get(parameter));
             String par = Matcher.quoteReplacement(parameter);
-            content = content.replaceAll("(?i)\\$\\{" + par + "\\}", value);
+            content = content.replaceAll("(?i)\\$\\(" + par + "\\)", value);
         }
         return content;
     }
