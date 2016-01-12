@@ -85,6 +85,7 @@ public class ExporterResource {
 			@Context HttpServletRequest servletRequest) 
 	{
 		try {
+			log.debug("Exporting XLS for file: " + file);
 			Response f = repository.getResource(file);
 			String fileContent = new String( (byte[]) f.getEntity());
 			String queryName = UUID.randomUUID().toString();			
@@ -122,6 +123,7 @@ public class ExporterResource {
 			@Context HttpServletRequest servletRequest) 
 	{
 		try {
+			log.debug("Exporting PDF for file: " + file);
 			Response f = repository.getResource(file);
 			String fileContent = new String( (byte[]) f.getEntity());
 			String queryName = UUID.randomUUID().toString();			
@@ -161,6 +163,7 @@ public class ExporterResource {
 			@Context HttpServletRequest servletRequest) 
 	{
 		try {
+			log.debug("Exporting CSV for file: " + file);
 			Response f = repository.getResource(file);
 			String fileContent = new String( (byte[]) f.getEntity());
 			//fileContent = ServletUtil.replaceParameters(servletRequest, fileContent);
@@ -199,6 +202,7 @@ public class ExporterResource {
 			@Context HttpServletRequest servletRequest) 
 	{
 		try {
+			log.debug("Exporting JSON for file: " + file);
 			Response f = repository.getResource(file);
 			String fileContent = new String( (byte[]) f.getEntity());
 			fileContent = ServletUtil.replaceParameters(servletRequest, fileContent);
@@ -238,6 +242,7 @@ public class ExporterResource {
 			@Context HttpServletRequest servletRequest) 
 	{
 		try {
+			log.debug("Exporting HTML for file: " + file);
 			Response f = repository.getResource(file);
 			String fileContent = new String( (byte[]) f.getEntity());
 			fileContent = ServletUtil.replaceParameters(servletRequest, fileContent);
