@@ -138,22 +138,21 @@ public class RestUtil {
 				for (Integer number : dcell.getCoordinates()) {
 					if (position != null) {
 						position += ":" + number.toString();
-					}
-					else {
+					} else {
 						position = number.toString();
 					}
 				}
 				if (position != null) {
 					metaprops.put("position", position);
 				}
-				
+
 				if (dcell != null && dcell.getRawNumber() != null) {
 					metaprops.put("raw", "" + dcell.getRawNumber());
 				}
-				
-				
+
+
 				metaprops.putAll(dcell.getProperties());
-				
+
 				// TODO no properties  (NULL) for now - 
 				return new Cell(dcell.getFormattedValue(), metaprops, Cell.Type.DATA_CELL);
 			}
@@ -164,7 +163,7 @@ public class RestUtil {
 //				metaprops.put("uniqueName", "" + mcell.getUniqueName());
 
 				Properties props = new Properties();
-				if ( mcell != null) {
+				if (mcell != null) {
 					if (mcell.getParentDimension() != null) {
 						props.put("dimension", mcell.getParentDimension());
 					}
@@ -190,5 +189,4 @@ public class RestUtil {
 		}
 		return null;
 	}
-
 }

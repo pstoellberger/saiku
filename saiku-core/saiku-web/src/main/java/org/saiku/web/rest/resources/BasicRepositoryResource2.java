@@ -24,10 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -45,18 +42,16 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.commons.vfs.AllFileSelector;
-import org.apache.commons.vfs.FileObject;
-import org.apache.commons.vfs.FileSystemManager;
-import org.apache.commons.vfs.FileType;
-import org.apache.commons.vfs.FileUtil;
-import org.apache.commons.vfs.VFS;
+import org.apache.commons.lang.time.DateFormatUtils;
+import org.apache.commons.vfs.*;
 import org.saiku.service.ISessionService;
 import org.saiku.service.util.Env;
 import org.saiku.service.util.exception.SaikuServiceException;
+import org.saiku.service.util.export.CsvExporter;
 import org.saiku.web.rest.objects.acl.Acl;
 import org.saiku.web.rest.objects.acl.AclEntry;
 import org.saiku.web.rest.objects.acl.enumeration.AclMethod;
@@ -84,32 +79,56 @@ public class BasicRepositoryResource2 implements ISaikuRepository {
 	private static final Logger log = LoggerFactory.getLogger(BasicRepositoryResource2.class);
 
 	private FileObject repo;
+	private FileObject accessLogDir;
+	private boolean hasAccessLog = false;
+	private String ACCESS_LOG_NAME = "saiku_repo_access";
+
 	private ISessionService sessionService;
 	
 	private Acl acl;
 
-	public void setPath(String path) throws Exception {
+	private FileObject resolve(String path) throws Exception {
 		FileSystemManager fileSystemManager;
+		if (!path.endsWith("" + File.separatorChar)) {
+			path += File.separatorChar;
+		}
+		path = Env.resolve(path);
+		fileSystemManager = VFS.getManager();
+		FileObject fileObject;
+		fileObject = fileSystemManager.resolveFile(path);
+		if (fileObject == null) {
+			throw new IOException("File cannot be resolved: " + path);
+		}
+		if(!fileObject.exists()) {
+			throw new IOException("File does not exist: " + path);
+		}
+		return fileObject;
+	}
+
+	public void setPath(String path) throws Exception {
 		try {
-			 if (!path.endsWith("" + File.separatorChar)) {
-				path += File.separatorChar;
-			}
-            path = Env.resolve(path);
-            fileSystemManager = VFS.getManager();
-			FileObject fileObject;
-			fileObject = fileSystemManager.resolveFile(path);
-			if (fileObject == null) {
-				throw new IOException("File cannot be resolved: " + path);
-			}
-			if(!fileObject.exists()) {
-				throw new IOException("File does not exist: " + path);
-			}
-			repo = fileObject;
+			repo = resolve(path);
 		} catch (Exception e) {
 			log.error("Error setting path for repository: " + path, e);
 		}
 	}
-	
+
+	public void setAccessLogDir(String path) throws Exception {
+		try {
+			FileObject f = resolve(path);
+			if (!f.isWriteable()) {
+				throw new IOException("Directory is not writeable: " +  path);
+			}
+			if (!f.getType().equals(FileType.FOLDER)) {
+				throw new IOException("Access Log path is not a directory: " +  path);
+			}
+			hasAccessLog = true;
+			accessLogDir = f;
+		} catch (Exception e) {
+			log.error("Error setting path for access log dir: " + path, e);
+		}
+	}
+
 	public void setAcl(Acl acl) {
 		this.acl = acl;
 	}
@@ -230,6 +249,7 @@ public class BasicRepositoryResource2 implements ISaikuRepository {
 			}
 //			System.out.println("path:" + repo.getName().getRelativeName(repoFile.getName()));
 			if (repoFile.exists()) {
+				writeToLog(username, file);
 				InputStreamReader reader = new InputStreamReader(repoFile.getContent().getInputStream());
 				BufferedReader br = new BufferedReader(reader);
 				String chunk ="",content ="";
@@ -561,6 +581,37 @@ public class BasicRepositoryResource2 implements ISaikuRepository {
 		AclEntry entry = this.acl.getEntry(path);
 		if ( entry == null ) entry = new AclEntry();
 		return entry;
+	}
+
+	private FileObject getCurrentLogFile() throws FileSystemException {
+		if (hasAccessLog) {
+			String filename = ACCESS_LOG_NAME + "." + DateFormatUtils.format(new Date(), "yyyy-MM-dd");
+			return accessLogDir.resolveFile(filename);
+		}
+		return null;
+	}
+
+	private void writeToLog(String username, String file) {
+		try {
+			if (hasAccessLog) {
+				FileObject logFile = getCurrentLogFile();
+				if (!logFile.exists()) {
+					logFile.createFile();
+				}
+				OutputStreamWriter ow = new OutputStreamWriter(logFile.getContent().getOutputStream(true));
+				String timeStamp =  DateFormatUtils.format(new Date(), "yyyy-MM-dd HH:mm:ss.SSS");
+				String line = CsvExporter.convertCsvLine(";", "\"", timeStamp, username, file);
+				log.debug("Writing line:" + line);
+				BufferedWriter bw = new BufferedWriter(ow);
+				bw.write(line);
+				bw.newLine();
+				bw.flush();
+				bw.close();
+
+			}
+		} catch (Exception e) {
+			log.debug("Could not write to access log", e);
+		}
 	}
 
 }

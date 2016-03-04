@@ -26,7 +26,7 @@ public class AxisInfo {
     calcAxisInfo( this, axis );
   }
 
-  private static void calcAxisInfo( AxisInfo axisInfo, CellSetAxis axis ) {
+  private void calcAxisInfo( AxisInfo axisInfo, CellSetAxis axis ) {
     final List<Hierarchy> hierarchies = axis.getAxisMetaData().getHierarchies();
     final int hCount = hierarchies.size();
     final List<Integer> levels[] = new List[ hCount ];

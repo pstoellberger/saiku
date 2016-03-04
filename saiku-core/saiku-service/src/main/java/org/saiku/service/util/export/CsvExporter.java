@@ -215,4 +215,18 @@ public class CsvExporter {
 		}
 		return new byte[0];
 	}
+
+	public static String convertCsvLine(String delimiter, String enclosing, String... args) {
+		String[] cols = new String[args.length];
+		for (int i = 0; i < args.length; i++) {
+			String value = args[i];
+			if(value == null || "null".equals(value))  {
+				value="";
+			}
+			value = value.replace("\"", "\"\"");
+			value = enclosing + value + enclosing;
+			cols[i] = value;
+		}
+		return StringUtils.join(cols, delimiter);
+	}
 }
