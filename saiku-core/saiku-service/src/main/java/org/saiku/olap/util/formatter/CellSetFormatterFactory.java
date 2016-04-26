@@ -1,5 +1,6 @@
 package org.saiku.olap.util.formatter;
 
+import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,7 +11,9 @@ import org.saiku.service.util.exception.SaikuServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CellSetFormatterFactory {
+public class CellSetFormatterFactory implements Serializable {
+
+	private static final long serialVersionUID = -7615296576527274904L;
 
 	private static final Logger log = LoggerFactory.getLogger(ThinQueryService.class);
 
