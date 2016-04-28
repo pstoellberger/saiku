@@ -27,7 +27,23 @@ public class AxisInfo {
   }
 
   private void calcAxisInfo( AxisInfo axisInfo, CellSetAxis axis ) {
-    final List<Hierarchy> hierarchies = axis.getAxisMetaData().getHierarchies();
+    final List<Hierarchy> axisHierarchies = axis.getAxisMetaData().getHierarchies();
+    final List<Hierarchy> hierarchies = new ArrayList<>();
+    boolean hasNullHierarchy = false;
+    for (int i = 0; i < axisHierarchies.size(); i++) {
+      if (axisHierarchies.get(i) == null) {
+        hasNullHierarchy = true;
+        break;
+      }
+    }
+    if (hasNullHierarchy && axis.getPositionCount() > 0) {
+      for (Member m : axis.getPositions().get(0).getMembers()) {
+        hierarchies.add(m.getHierarchy());
+      }
+    } else {
+      hierarchies .addAll(axisHierarchies);
+    }
+
     final int hCount = hierarchies.size();
     final List<Integer> levels[] = new List[ hCount ];
     final HashSet<Integer>[][] usedLevels = new HashSet[ hCount ][];
