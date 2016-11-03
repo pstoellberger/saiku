@@ -247,6 +247,9 @@ public class ThinQueryService implements Serializable {
 
 			result.setRuntime(new Double(format - start).intValue());
 			return result;
+		} catch (NullPointerException npe) {
+			log.error("Can't execute query. NPE ", npe);
+			throw new SaikuServiceException("Can't execute query: " + tq.getName(),npe);
 		} catch (Exception e) {
 			throw new SaikuServiceException("Can't execute query: " + tq.getName(),e);
 		} catch (Error e) {
@@ -314,8 +317,8 @@ public class ThinQueryService implements Serializable {
 
 	public byte[] getExport(String queryName, String type, ICellSetFormatter formatter, ExcelBuilderOptions options) throws Exception {
 		if (StringUtils.isNotBlank(type) && context.containsKey(queryName)) {
-			CellSet rs = context.get(queryName).getOlapResult();
 			ThinQuery tq = context.get(queryName).getOlapQuery();
+			CellSet rs = executeInternalQuery(tq);
 			List<ThinHierarchy> filterHierarchies = null;
 			if (ThinQuery.Type.QUERYMODEL.equals(tq.getType())) {
 				filterHierarchies = tq.getQueryModel().getAxes().get(AxisLocation.FILTER).getHierarchies();

@@ -38,10 +38,12 @@ public class AxisInfo {
     }
     if (hasNullHierarchy && axis.getPositionCount() > 0) {
       for (Member m : axis.getPositions().get(0).getMembers()) {
-        hierarchies.add(m.getHierarchy());
+        if (m.getHierarchy() != null) {
+          hierarchies.add(m.getHierarchy());
+        }
       }
     } else {
-      hierarchies .addAll(axisHierarchies);
+      hierarchies.addAll(axisHierarchies);
     }
 
     final int hCount = hierarchies.size();
@@ -52,7 +54,11 @@ public class AxisInfo {
     for ( int i = 0; i < hCount; i++ ) {
       maxDepth[ i ] = -1;
       levels[ i ] = new ArrayList<>();
-      usedLevels[ i ] = new HashSet[ hierarchies.get( i ).getLevels().size() ];
+      if (hierarchies.get( i ) != null) {
+        usedLevels[i] = new HashSet[hierarchies.get(i).getLevels().size()];
+      } else {
+        usedLevels[i] = new HashSet[0];
+      }
       for ( int j = 0; j < usedLevels[ i ].length; j++ ) {
         usedLevels[ i ][ j ] = new HashSet<>();
       }
