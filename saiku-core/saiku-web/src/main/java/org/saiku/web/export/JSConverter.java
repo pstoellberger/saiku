@@ -15,6 +15,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class JSConverter {
 
 	public static String convertToHtml(QueryResult qr, boolean wrapcontent) throws IOException {
+		if (qr.getCellset() == null) {
+			return "No Data";
+		}
 		ObjectMapper om = new ObjectMapper();
 		StringWriter sw = new StringWriter();
 		Context context = Context.enter();
@@ -33,7 +36,10 @@ public class JSConverter {
 		Object wrappedOut = Context.javaToJS(sw, globalScope);
 		ScriptableObject.putProperty(globalScope, "out", wrappedOut);
 
-		String code = "eval('var cellset = ' + data); \nvar renderer = new SaikuTableRenderer(); \nvar html = renderer.render(cellset, { wrapContent : " + wrapcontent + " }); out.write(html);";
+		String code = "eval('var cellset = ' + data); \n"
+		 + "var renderer = new SaikuTableRenderer(); \n"
+		 + "var html = renderer.render(cellset, { wrapContent : " + wrapcontent + " }); \n"
+		 + "if (html) { out.write(html); } else { out.write('No Data'); }";
 
 		context.evaluateString(globalScope, code, "<mem>", 1, null);
 		Context.exit();
