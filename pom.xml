@@ -27,7 +27,7 @@
         <pentaho.libs.version>TRUNK-SNAPSHOT</pentaho.libs.version>
         <pentaho.platform.version>5.0.0</pentaho.platform.version>
         <olap4j.version>1.2.0</olap4j.version>
-        <mondrian.version>3.11.1.0-386</mondrian.version>
+        <mondrian.version>3.13.0.2-38</mondrian.version>
     </properties>
     <pluginRepositories>
         <pluginRepository>
@@ -36,17 +36,16 @@
             <url>http://repo.meteorite.bi/content/repositories/alabs-release-local/</url>
         </pluginRepository>
     </pluginRepositories>
-
     <repositories>
-        <repository>
+      <repository>
             <id>Analytical Labs Repo</id>
             <name>Analytical Labs Repo-releases</name>
-            <url>http://repo.meteorite.bi/content/repositories/alabs-release-local/</url>
+            <url>http://repo.meteorite.bi/repository/alabs-release-local/</url>
         </repository>
         <repository>
             <id>Analytical Labs snapshots</id>
             <name>Analytical Labs Repo-releases</name>
-            <url>http://repo.meteorite.bi/content/repositories/alabs-snapshot-local/</url>
+            <url>http://repo.meteorite.bi/repository/alabs-snapshot-local/</url>
         </repository>
         <repository>
             <id>pentaho-third-party</id>
@@ -78,6 +77,10 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
+        <repository>
+    		<id>pentaho-releases</id>
+    		<url>http://repository.pentaho.org/artifactory/repo/</url>
+		</repository>
     </repositories>
     <build>
         <plugins>
