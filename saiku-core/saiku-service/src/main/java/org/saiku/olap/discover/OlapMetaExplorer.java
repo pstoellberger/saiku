@@ -19,6 +19,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import mondrian.olap4j.SaikuMondrianHelper;
@@ -47,6 +48,7 @@ import org.saiku.olap.dto.SaikuDimension;
 import org.saiku.olap.dto.SaikuHierarchy;
 import org.saiku.olap.dto.SaikuLevel;
 import org.saiku.olap.dto.SaikuMember;
+import org.saiku.olap.dto.SaikuMeasure;
 import org.saiku.olap.dto.SaikuSchema;
 import org.saiku.olap.dto.SimpleCubeElement;
 import org.saiku.olap.util.ObjectUtil;
@@ -389,24 +391,32 @@ public class OlapMetaExplorer {
 	}
 
 	public List<SaikuMember> getAllMeasures(SaikuCube cube) throws SaikuOlapException {
-		List<SaikuMember> measures = new ArrayList<SaikuMember>();
+		List<SaikuMember> members = new ArrayList<SaikuMember>();
 		try {
 			Cube nativeCube = getNativeCube(cube);
+			List<SaikuMeasure> measures = new ArrayList<SaikuMeasure>();
 			for (Measure measure : nativeCube.getMeasures()) {
 				if(measure.isVisible()) {
 					measures.add(ObjectUtil.convertMeasure(measure));
 				}
 			}
-			if (measures.size() == 0) {
+			Collections.sort(measures, new Comparator<SaikuMeasure>() {
+				@Override
+				public int compare(SaikuMeasure o1, SaikuMeasure o2) {
+					return o1.isDefaultMeasure() ? 1 : 0;
+				}
+			});
+			members.addAll(measures);
+			if (members.size() == 0) {
 				Hierarchy hierarchy = nativeCube.getDimensions().get("Measures").getDefaultHierarchy();
-				measures = (ObjectUtil.convertMembers(hierarchy.getRootMembers()));
+				members = (ObjectUtil.convertMembers(hierarchy.getRootMembers()));
 			}
 		} catch (OlapException e) {
 			throw new SaikuOlapException("Cannot get measures for cube:"+cube.getName(),e);
 		}
-		
+
 //		Collections.sort(measures, new SaikuMemberCaptionComparator());
-		return measures;
+		return members;
 	}
 
 	public SaikuMember getMember(SaikuCube cube, String uniqueMemberName) throws SaikuOlapException {

@@ -248,7 +248,11 @@ public class ObjectUtil {
 				m.getLevel().getUniqueName());
 	}
 	
-	public static SaikuMember convertMeasure(Measure m) {
+	public static SaikuMeasure convertMeasure(Measure m) {
+		boolean isDefaultMeasure = false;
+		try {
+			isDefaultMeasure = m.getDimension().getDefaultHierarchy().getDefaultMember().getUniqueName().equals(m.getUniqueName());
+		} catch (OlapException e) {}
 		return new SaikuMeasure(
 				m.getName(), 
 				m.getUniqueName(), 
@@ -258,7 +262,8 @@ public class ObjectUtil {
 				m.getHierarchy().getUniqueName(),
 				m.getLevel().getUniqueName(),
 				m.isVisible(),
-				m.isCalculated() | m.isCalculatedInQuery());
+				m.isCalculated() | m.isCalculatedInQuery(),
+				isDefaultMeasure);
 
 	}
 

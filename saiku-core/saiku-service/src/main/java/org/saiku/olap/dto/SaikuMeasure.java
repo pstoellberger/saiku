@@ -3,6 +3,7 @@ package org.saiku.olap.dto;
 public class SaikuMeasure extends SaikuMember {
 	
 	private Boolean calculated;
+	private Boolean isDefaultMeasure;
 
 	public SaikuMeasure() {}
 
@@ -15,10 +16,12 @@ public class SaikuMeasure extends SaikuMember {
 			String hierarchyUniqueName, 
 			String levelUniqueName,
 			boolean visible,
-			boolean calculated) 
+			boolean calculated,
+			boolean defaultMeasure)
 	{
 		super(name, uniqueName, caption, description, dimensionUniqueName, hierarchyUniqueName, levelUniqueName);
 		this.calculated = calculated;
+		this.isDefaultMeasure = defaultMeasure;
 	}
 
 	/**
@@ -26,6 +29,9 @@ public class SaikuMeasure extends SaikuMember {
 	 */
 	public Boolean isCalculated() {
 		return calculated;
+	}
+	public Boolean isDefaultMeasure() {
+		return isDefaultMeasure;
 	}
 
 
