@@ -7,8 +7,8 @@ git pull origin master
 cd ..
 cd saiku-ui
 git pull
-git checkout dev 
-git pull origin dev
+git checkout master 
+git pull origin master
 cd ..
 echo "Building Everything"
 mvn clean install

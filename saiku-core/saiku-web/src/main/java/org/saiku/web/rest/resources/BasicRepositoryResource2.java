@@ -47,7 +47,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
-import org.apache.commons.vfs.*;
+import org.apache.commons.vfs2.*;
 import org.saiku.service.ISessionService;
 import org.saiku.service.util.Env;
 import org.saiku.service.util.exception.SaikuServiceException;

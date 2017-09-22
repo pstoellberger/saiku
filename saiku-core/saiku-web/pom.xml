@@ -154,8 +154,8 @@
             <artifactId>commons-pool</artifactId>
         </dependency>
         <dependency>
-            <groupId>commons-vfs</groupId>
-            <artifactId>commons-vfs</artifactId>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-vfs2</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-collections</groupId>
