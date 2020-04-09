@@ -63,11 +63,11 @@
 									</fileset>
 								</unzip>
 								
-								<unzip dest="target/stage/tomcat/">
+								<untar dest="target/stage/tomcat/" compression="gzip">
 									<fileset dir="${basedir}/tomcat/">
-										<include name="${tomcat.version}.zip" />
+										<include name="${tomcat.version}.tar.gz" />
 									</fileset>
-								</unzip>								
+								</untar>
 								<copy todir="target/dist/saiku-server/">
 									<fileset dir="${basedir}/scripts/" />
 								</copy>

@@ -13,27 +13,10 @@
     <packaging>jar</packaging>
 
     <build>
-
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>2.1.2</version>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.0.2</version>
                 <configuration>
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>
@@ -206,7 +189,6 @@
         <dependency>
             <groupId>org.apache.xmlgraphics</groupId>
             <artifactId>batik-script</artifactId>
-            <version>1.7</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.xmlgraphics</groupId>
@@ -225,42 +207,24 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>avalon-framework</groupId>
-            <artifactId>avalon-framework-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>avalon-framework</groupId>
-            <artifactId>avalon-framework-impl</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.apache.xmlgraphics</groupId>
             <artifactId>xmlgraphics-commons</artifactId>
         </dependency>
         <dependency>
             <groupId>com.itextpdf</groupId>
             <artifactId>itextpdf</artifactId>
-            <version>5.5.0</version>
         </dependency>
         <dependency>
             <groupId>com.itextpdf.tool</groupId>
             <artifactId>xmlworker</artifactId>
-            <version>5.5.0</version>
         </dependency>
         <dependency>
-            <groupId>rhino</groupId>
-            <artifactId>js</artifactId>
-            <version>1.7R2</version>
+            <groupId>org.mozilla</groupId>
+            <artifactId>rhino</artifactId>
         </dependency>
     </dependencies>
     <reporting>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.7</version>
-                <configuration>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>cobertura-maven-plugin</artifactId>
