@@ -27,7 +27,7 @@
         <pentaho.libs.version>TRUNK-SNAPSHOT</pentaho.libs.version>
         <pentaho.platform.version>5.0.0</pentaho.platform.version>
         <olap4j.version>1.2.0</olap4j.version>
-        <mondrian.version>3.13.0.2-38</mondrian.version>
+        <mondrian.version>3.13.0.3-64</mondrian.version>
         <batik.version>1.12</batik.version>
         <jackson.version>2.10.3</jackson.version>
         <fop.version>2.4</fop.version>
