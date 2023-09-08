@@ -17,7 +17,7 @@
 		<plugin>            
 		  <groupId>org.apache.maven.plugins</groupId>
 		  <artifactId>maven-war-plugin</artifactId>
-          <version>3.3.1</version>
+          <version>3.4.0</version>
 		  <configuration>
 		    <webXml>src\main\webapp\WEB-INF\web.xml</webXml>        
 		  </configuration>
@@ -25,7 +25,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-antrun-plugin</artifactId>
-				<version>1.2</version>
+				<version>3.1.0</version>
 				<executions>
 					<execution>
 						<id>create-package</id>
@@ -34,7 +34,7 @@
 							<goal>run</goal>
 						</goals>
 						<configuration>
-							<tasks>
+							<target>
 								<zip destfile="target/${project.artifactId}-${project.version}.war">
 									<zipfileset dir="target/${project.artifactId}-${project.version}/" />
 								</zip>
@@ -72,7 +72,7 @@
 									<zipfileset
 										dir="target/${project.artifactId}-foodmart-${project.version}/" />
 								</zip>
-							</tasks>
+							</target>
 						</configuration>
 					</execution>
 				</executions>
@@ -80,6 +80,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
+                <version>3.1.2</version>
 				<executions>
 					<execution>
 						<id>surefire-it</id>

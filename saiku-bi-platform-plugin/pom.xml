@@ -8,8 +8,8 @@
 	<name>saiku biserver plugin</name>
 
 	<properties>
-		<maven.compiler.source>1.5</maven.compiler.source>
-		<maven.compiler.target>1.5</maven.compiler.target>
+		<maven.compiler.source>8</maven.compiler.source>
+		<maven.compiler.target>8</maven.compiler.target>
 		<pentaho.libs.version>3.10.0-stable</pentaho.libs.version>
 		<slf4j.version>1.6.1</slf4j.version>
 		<enunciate.version>1.30</enunciate.version>
@@ -250,7 +250,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-antrun-plugin</artifactId>
-				<version>1.2</version>
+				<version>3.1.0</version>
 				<executions>
 					<execution>
 						<id>copy-package</id>
@@ -259,7 +259,7 @@
 							<goal>run</goal>
 						</goals>
 						<configuration>
-							<tasks>
+							<target>
 								<unzip dest="target/dist/saiku/ui/">
 									<fileset dir="target/stage/">
 										<include name="saiku-ui-${project.version}.war" />
@@ -280,7 +280,7 @@
 									<zipfileset dir="target/dist/" />
 								</zip>
 
-							</tasks>
+							</target>
 						</configuration>
 					</execution>
 				</executions>
@@ -289,7 +289,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.0.2</version>
+				<version>3.11.0</version>
 				<configuration>
 					<source>${maven.compiler.source}</source>
 					<target>${maven.compiler.target}</target>
@@ -299,6 +299,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-resources-plugin</artifactId>
+				<version>3.3.1</version>
 				<!-- set encoding to something not platform dependent -->
 				<configuration>
 					<encoding>UTF-8</encoding>
