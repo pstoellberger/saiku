@@ -2,7 +2,7 @@ package org.saiku.plugin.resources;
 
 import java.io.File;
 
-import javax.ws.rs.Path;
+import jakarta.ws.rs.Path;
 
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;

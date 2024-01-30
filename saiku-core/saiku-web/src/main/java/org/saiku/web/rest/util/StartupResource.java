@@ -5,7 +5,7 @@ import java.util.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jersey.spi.container.servlet.WebComponent;
+import org.glassfish.jersey.servlet.WebComponent;
 
 public class StartupResource {
 	
@@ -17,12 +17,12 @@ public class StartupResource {
 			java.util.logging.Logger jerseyLogger = java.util.logging.Logger.getLogger(WebComponent.class.getName());
 			if (jerseyLogger != null) {
 				jerseyLogger.setLevel(Level.SEVERE);
-				log.debug("Disabled INFO Logging for com.sun.jersey.spi.container.servlet.WebComponent");
+				log.debug("Disabled INFO Logging for org.glassfish.jersey.servlet.WebComponent");
 			} else {
 				
 			}
 		} catch (Exception e) {
-			log.error("Trying to disabling logging for com.sun.jersey.spi.container.servlet.WebComponent INFO Output failed", e);
+			log.error("Trying to disabling logging for org.glassfish.jersey.servlet.WebComponent INFO Output failed", e);
 		}
 	}
 

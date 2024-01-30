@@ -22,8 +22,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringUtils;
 import org.saiku.service.ISessionService;
@@ -64,7 +64,7 @@ public class SessionService implements ISessionService {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.saiku.web.service.ISessionService#login(javax.servlet.http.HttpServletRequest, java.lang.String, java.lang.String)
+	 * @see org.saiku.web.service.ISessionService#login(jakarta.servlet.http.HttpServletRequest, java.lang.String, java.lang.String)
 	 */
 	public Map<String, Object> login(HttpServletRequest req, String username, String password) {
 		if (authenticationManager != null) {
@@ -137,7 +137,7 @@ public class SessionService implements ISessionService {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.saiku.web.service.ISessionService#logout(javax.servlet.http.HttpServletRequest)
+	 * @see org.saiku.web.service.ISessionService#logout(jakarta.servlet.http.HttpServletRequest)
 	 */
 	public void logout(HttpServletRequest req) {
 		if (SecurityContextHolder.getContext() != null && SecurityContextHolder.getContext().getAuthentication() != null) {
@@ -156,7 +156,7 @@ public class SessionService implements ISessionService {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.saiku.web.service.ISessionService#authenticate(javax.servlet.http.HttpServletRequest, java.lang.String, java.lang.String)
+	 * @see org.saiku.web.service.ISessionService#authenticate(jakarta.servlet.http.HttpServletRequest, java.lang.String, java.lang.String)
 	 */
 	public void authenticate(HttpServletRequest req, String username, String password) {
 		try {
@@ -173,7 +173,7 @@ public class SessionService implements ISessionService {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.saiku.web.service.ISessionService#getSession(javax.servlet.http.HttpServletRequest)
+	 * @see org.saiku.web.service.ISessionService#getSession(jakarta.servlet.http.HttpServletRequest)
 	 */
 	public Map<String,Object> getSession() {
 		if (SecurityContextHolder.getContext() != null && SecurityContextHolder.getContext().getAuthentication() != null) {			

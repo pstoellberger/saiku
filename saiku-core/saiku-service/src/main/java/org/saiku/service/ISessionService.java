@@ -16,8 +16,7 @@
 package org.saiku.service;
 
 import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 public interface ISessionService {
 
