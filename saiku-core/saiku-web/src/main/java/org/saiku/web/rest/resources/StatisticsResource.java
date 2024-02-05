@@ -1,21 +1,20 @@
 package org.saiku.web.rest.resources;
 
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import java.util.List;
-
 import mondrian.olap.MondrianServer;
 import mondrian.olap.MondrianServer.MondrianVersion;
 import mondrian.server.monitor.ConnectionInfo;
 import mondrian.server.monitor.Monitor;
 import mondrian.server.monitor.ServerInfo;
 import mondrian.server.monitor.StatementInfo;
-
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import java.util.List;
 
 @Component
-@Path("/saiku/statistics")
+@RequestMapping("/saiku/statistics")
 public class StatisticsResource {
 
 //	StringWriter sqlWriter = new StringWriter();
@@ -44,9 +43,7 @@ public class StatisticsResource {
 //	}
 	
 	
-	@GET
-	@Produces({"application/json" })
-	@Path("/mondrian")
+	@GetMapping(value = "/mondrian", produces = MediaType.APPLICATION_JSON_VALUE)
 	public MondrianStats getMondrianStats() {
 		
 		MondrianServer mondrianServer = MondrianServer.forId(null);
@@ -80,11 +77,9 @@ public class StatisticsResource {
 		
 		return null;
 	}
-	
 
-	@GET
-	@Produces({"application/json" })
-	@Path("/mondrian/server")
+
+	@GetMapping(value = "/mondrian/server", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ServerInfo getMondrianServer() {
 		MondrianServer mondrianServer = MondrianServer.forId(null);
 		if (mondrianServer != null) {

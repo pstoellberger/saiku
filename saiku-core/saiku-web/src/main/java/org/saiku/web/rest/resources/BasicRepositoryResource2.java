@@ -1,4 +1,4 @@
-/*  
+/*
  *   Copyright 2012 OSBI Ltd
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,32 +16,7 @@
 package org.saiku.web.rest.resources;
 
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.util.*;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
-
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.DELETE;
-import jakarta.ws.rs.FormParam;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
-import jakarta.ws.rs.WebApplicationException;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.Response.Status;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -59,13 +34,19 @@ import org.saiku.web.rest.objects.repository.RepositoryFileObject;
 import org.saiku.web.rest.objects.repository.RepositoryFolderObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
-import org.glassfish.jersey.media.multipart.FormDataParam;
-
-
+import java.io.*;
+import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 
 /**
@@ -74,7 +55,8 @@ import org.glassfish.jersey.media.multipart.FormDataParam;
  *
  */
 @Component
-@Path("/saiku/api/repository")
+@RestController
+@RequestMapping("/saiku/api/repository")
 public class BasicRepositoryResource2 implements ISaikuRepository {
 
 	private static final Logger log = LoggerFactory.getLogger(BasicRepositoryResource2.class);
@@ -85,7 +67,7 @@ public class BasicRepositoryResource2 implements ISaikuRepository {
 	private String ACCESS_LOG_NAME = "saiku_repo_access";
 
 	private ISessionService sessionService;
-	
+
 	private Acl acl;
 
 	private FileObject resolve(String path) throws Exception {
@@ -133,7 +115,7 @@ public class BasicRepositoryResource2 implements ISaikuRepository {
 	public void setAcl(Acl acl) {
 		this.acl = acl;
 	}
-	
+
 	/**
 	 * Sets the sessionService
 	 * @param sessionService
@@ -141,15 +123,14 @@ public class BasicRepositoryResource2 implements ISaikuRepository {
 	public void setSessionService(ISessionService sessionService){
 		this.sessionService = sessionService;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.saiku.web.rest.resources.ISaikuRepository#getRepository(java.lang.String, java.lang.String)
 	 */
-	@GET
-	@Produces({"application/json" })
+	@GetMapping
 	public List<IRepositoryObject> getRepository (
-			@QueryParam("path") String path,
-			@QueryParam("type") String type) 
+			@Nullable @RequestParam("path") String path,
+			@Nullable @RequestParam("type") String type)
 	{
 		List<IRepositoryObject> objects = new ArrayList<IRepositoryObject>();
 		try {
@@ -164,13 +145,13 @@ public class BasicRepositoryResource2 implements ISaikuRepository {
 				} else {
 					path = repo.getName().getRelativeName(folder.getName());
 				}
-				
+
 				String username = sessionService.getAllSessionObjects().get("username").toString();
 				List<String> roles = (List<String> ) sessionService.getAllSessionObjects().get("roles");
-				
+
 				//TODO : shall throw an exception ???
 				if ( !acl.canRead(path,username, roles) ) {
-					return new ArrayList<IRepositoryObject>(); // empty  
+					return new ArrayList<IRepositoryObject>(); // empty
 				} else {
 					objects = getRepositoryObjects(folder, type);
 				}
@@ -184,10 +165,9 @@ public class BasicRepositoryResource2 implements ISaikuRepository {
 		return objects;
 	}
 
-	@GET
-	@Produces({"application/json" })
-	@Path("/resource/acl")
-	public AclEntry getResourceAcl(@QueryParam("file") String file) {
+
+	@GetMapping(value = "/resource/acl", produces = {MediaType.APPLICATION_JSON_VALUE})
+	public AclEntry getResourceAcl(@RequestParam("file") String file) {
 		try {
 			if (file == null || file.startsWith("/") || file.startsWith(".")) {
 				throw new IllegalArgumentException("Path cannot be null or start with \"/\" or \".\" - Illegal Path: " + file);
@@ -202,12 +182,14 @@ public class BasicRepositoryResource2 implements ISaikuRepository {
 		}
 		throw new SaikuServiceException("You dont have permission to retrieve ACL for file: " + file);
 	}
-	
-	
-	@POST
-	@Produces({"application/json" })
-	@Path("/resource/acl")
-	public Response setResourceAcl(@FormParam("file") String file, @FormParam("acl") String aclEntry) {
+
+
+
+	@PostMapping(value = "/resource/acl", produces = {MediaType.APPLICATION_JSON_VALUE})
+	public ResponseEntity setResourceAcl(
+			@RequestParam("file") String file,
+			@RequestParam("acl") String aclEntry)
+	{
 		try {
 			if (file == null || file.startsWith("/") || file.startsWith(".")) {
 				throw new IllegalArgumentException("Path cannot be null or start with \"/\" or \".\" - Illegal Path: " + file);
@@ -220,23 +202,21 @@ public class BasicRepositoryResource2 implements ISaikuRepository {
 			FileObject repoFile = repo.resolveFile(file);
 			if (repoFile.exists() && acl.canGrant(file, username, roles) ) {
 				acl.addEntry(file, ae);
-				return Response.ok().build();
+				return ResponseEntity.ok().build();
 			}
 			log.debug("Repo file does not exist or cannot grant access. repo file:" + repoFile + " - file: " + file);
 		} catch (Exception e) {
 			log.error("An error occured while setting permissions to file: " + file, e);
 		}
-		return Response.serverError().build();
+		return ResponseEntity.internalServerError().build();
 	}
 
 
 	/* (non-Javadoc)
 	 * @see org.saiku.web.rest.resources.ISaikuRepository#getResource(java.lang.String)
 	 */
-	@GET
-	@Produces({"text/plain" })
-	@Path("/resource")
-	public Response getResource (@QueryParam("file") String file)
+	@GetMapping(value = "/resource", produces = {MediaType.TEXT_PLAIN_VALUE})
+	public ResponseEntity getResource (@RequestParam("file") String file)
 	{
 		try {
 			if (file == null || file.startsWith("/") || file.startsWith(".")) {
@@ -246,7 +226,7 @@ public class BasicRepositoryResource2 implements ISaikuRepository {
 			List<String> roles = (List<String> ) sessionService.getAllSessionObjects().get("roles");
 			FileObject repoFile = repo.resolveFile(file);
 			if ( !acl.canRead(file, username, roles) ) {
-				return Response.serverError().status(Status.FORBIDDEN).build();
+				return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 			}
 //			System.out.println("path:" + repo.getName().getRelativeName(repoFile.getName()));
 			if (repoFile.exists()) {
@@ -258,8 +238,7 @@ public class BasicRepositoryResource2 implements ISaikuRepository {
 					content += chunk + "\n";
 				}
 				byte[] doc = content.getBytes("UTF-8");
-				return Response.ok(doc, MediaType.TEXT_PLAIN).header(
-								"content-length",doc.length).build();
+				return ResponseEntity.ok().contentLength(doc.length).contentType(MediaType.TEXT_PLAIN).body(doc);
 			}
 			else {
 				throw new Exception("File does not exist:" + repoFile.getName().getPath());
@@ -267,18 +246,17 @@ public class BasicRepositoryResource2 implements ISaikuRepository {
 		} catch(Exception e){
 			log.error("Cannot load query (" + file + ")",e);
 			String error = ExceptionUtils.getRootCauseMessage(e);
-			throw new WebApplicationException(Response.serverError().entity(error).build());
+			return ResponseEntity.internalServerError().body(error);
 		}
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.saiku.web.rest.resources.ISaikuRepository#saveResource(java.lang.String, java.lang.String)
 	 */
-	@POST
-	@Path("/resource")
-	public Response saveResource (
-			@FormParam("file") String file, 
-			@FormParam("content") String content)
+	@PostMapping("/resource")
+	public ResponseEntity saveResource (
+			@RequestParam("file") String file,
+			@RequestParam("content") String content)
 	{
 		try {
 			if (file == null || file.startsWith("/") || file.startsWith(".")) {
@@ -290,9 +268,9 @@ public class BasicRepositoryResource2 implements ISaikuRepository {
 			FileObject repoFile = repo.resolveFile(file);
 
 			if ( !acl.canWrite(file,username, roles) ) {
-				return Response.serverError().status(Status.FORBIDDEN)
-							.entity("You don't have permissions to save here!")
-								.type("text/plain").build();
+				return ResponseEntity.status(HttpStatus.FORBIDDEN).contentType(MediaType.TEXT_PLAIN)
+						.body("You don't have permissions to save here!");
+
 			}
 
 			if (repoFile == null) throw new Exception("Repo File not found");
@@ -309,27 +287,27 @@ public class BasicRepositoryResource2 implements ISaikuRepository {
 				bw.write(content);
 				bw.close();
 			}
-			return Response.ok().build();
+			return ResponseEntity.ok().build();
 		} catch(Exception e){
 			log.error("Cannot save resource to ( file: " + file + ")",e);
 		}
-		return Response.serverError().entity("Cannot save resource to ( file: " + file + ")").type("text/plain").build();
+		return ResponseEntity.internalServerError().contentType(MediaType.TEXT_PLAIN)
+				.body("Cannot save resource to ( file: " + file + ")");
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.saiku.web.rest.resources.ISaikuRepository#deleteResource(java.lang.String)
 	 */
-	@DELETE
-	@Path("/resource")
-	public Response deleteResource (
-			@QueryParam("file") String file)
+	@DeleteMapping("/resource")
+	public ResponseEntity deleteResource (
+			@RequestParam("file") String file)
 	{
 		try {
 			if (file == null || file.startsWith("/") || file.startsWith(".")) {
 				throw new IllegalArgumentException("Path cannot be null or start with \"/\" or \".\" - Illegal Path: " + file);
 			}
-	
-			
+
+
 			String username = sessionService.getAllSessionObjects().get("username").toString();
 			List<String> roles = (List<String> ) sessionService.getAllSessionObjects().get("roles");
 				FileObject repoFile = repo.resolveFile(file);
@@ -341,23 +319,24 @@ public class BasicRepositoryResource2 implements ISaikuRepository {
 						} else {
 							repoFile.delete(new AllFileSelector());
 						}
-						return Response.ok().build();
+						return ResponseEntity.ok().build();
 					} else {
-						return Response.serverError().status(Status.FORBIDDEN).build();
-					} 
+						return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+					}
 				}
 		} catch(Exception e){
 			log.error("Cannot save resource to (file: " + file + ")",e);
 		}
-		return Response.serverError().build();
+		return ResponseEntity.internalServerError().build();
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.saiku.web.rest.resources.ISaikuRepository#saveResource(java.lang.String, java.lang.String)
 	 */
-	@POST
-	@Path("/resource/move")
-	public Response moveResource(@FormParam("source") String source, @FormParam("target") String target)
+	@PostMapping("/resource/move")
+	public ResponseEntity moveResource(
+			@RequestParam("source") String source,
+			@RequestParam("target") String target)
 	{
 		try {
 			if (source == null || source.startsWith("/") || source.startsWith(".")) {
@@ -366,15 +345,15 @@ public class BasicRepositoryResource2 implements ISaikuRepository {
 			if (target == null || target.startsWith("/") || target.startsWith(".")) {
 				throw new IllegalArgumentException("Path cannot be null or start with \"/\" or \".\" - Illegal Path: " + target);
 			}
-			
+
 			String username = sessionService.getAllSessionObjects().get("username").toString();
 			List<String> roles = (List<String> ) sessionService.getAllSessionObjects().get("roles");
 			FileObject targetFile = repo.resolveFile(target);
 
 			if ( !acl.canWrite(target,username, roles) ) {
-				return Response.serverError().status(Status.FORBIDDEN)
-							.entity("You don't have permissions to save here!")
-								.type("text/plain").build();
+				return ResponseEntity.status(HttpStatus.FORBIDDEN)
+						.contentType(MediaType.TEXT_PLAIN)
+						.body("You don't have permissions to save here!");
 			}
 
 			if (targetFile == null) throw new Exception("Repo File not found");
@@ -382,10 +361,12 @@ public class BasicRepositoryResource2 implements ISaikuRepository {
 			if (targetFile.exists()) {
 				throw new Exception("Target file exists already. Cannot write: " + target);
 			}
-			
+
 			FileObject sourceFile = repo.resolveFile(source);
 			if ( !acl.canRead(source, username, roles) ) {
-				return Response.serverError().status(Status.FORBIDDEN).entity("You don't have permissions to read the source file: " + source).build();
+				return ResponseEntity.status(HttpStatus.FORBIDDEN)
+						.contentType(MediaType.TEXT_PLAIN)
+						.body("You don't have permissions to read the source file: " + source);
 			}
 
 			if (!sourceFile.exists()) {
@@ -395,23 +376,23 @@ public class BasicRepositoryResource2 implements ISaikuRepository {
 				throw new Exception("Cannot rename " + source + " to " + target);
 			}
 			sourceFile.moveTo(targetFile);
-			return Response.ok().build();
+			return ResponseEntity.ok().build();
 		} catch(Exception e){
 			log.error("Cannot move resource from " + source + " to " + target ,e);
-			return Response.serverError().entity("Cannot move resource from " + source + " to " + target + " ( " + e.getMessage() + ")").type("text/plain").build();
+			return ResponseEntity.internalServerError().body("Cannot move resource from " + source + " to " + target + " ( " + e.getMessage() + ")");
 		}
-		
+
 	}
-	
-	@GET
-	@Path("/zip")
-	public Response getResourcesAsZip (
-			@QueryParam("directory") String directory,
-			@QueryParam("files") String files) 
+
+
+	@GetMapping("/zip")
+	public ResponseEntity getResourcesAsZip (
+			@RequestParam("directory") String directory,
+			@RequestParam("files") String files)
 	{
 		try {
 			if (StringUtils.isBlank(directory))
-				return Response.ok().build();
+				return ResponseEntity.ok().build();
 
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();
 			ZipOutputStream zos = new ZipOutputStream(bos);
@@ -434,9 +415,9 @@ public class BasicRepositoryResource2 implements ISaikuRepository {
 				fileArray = files.split(",");
 				for (String f : fileArray) {
 					String resource = directory + "/" + f;
-					Response r = getResource(resource);
-					if (Status.OK.equals(Status.fromStatusCode(r.getStatus()))) {
-						byte[] doc = (byte[]) r.getEntity();
+					ResponseEntity r = getResource(resource);
+					if (HttpStatus.OK.equals(r.getStatusCode())) {
+						byte[] doc = (byte[]) r.getBody();
 						ZipEntry ze = new ZipEntry(f);
 						zos.putNextEntry(ze);
 						zos.write(doc);
@@ -446,63 +427,60 @@ public class BasicRepositoryResource2 implements ISaikuRepository {
 			zos.closeEntry();
 			zos.close();
 			byte[] zipDoc = bos.toByteArray();
-			
-			return Response.ok(zipDoc, MediaType.APPLICATION_OCTET_STREAM).header(
-					"content-disposition",
-					"attachment; filename = " + directory + ".zip").header(
-							"content-length",zipDoc.length).build();
-			
-			
+
+			return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM)
+					.header("content-disposition",
+							"attachment; filename = " + directory + ".zip")
+					.header("content-length", String.valueOf(zipDoc.length)).body(zipDoc);
+
+
 		} catch(Exception e){
 			log.error("Cannot zip resources " + files ,e);
 			String error = ExceptionUtils.getRootCauseMessage(e);
-			return Response.serverError().entity(error).build();
+			return ResponseEntity.internalServerError().body(error);
 		}
 
 	}
-	
-	@POST
-	@Path("/zipupload")
-	@Consumes(MediaType.MULTIPART_FORM_DATA)
-	public Response uploadArchiveZip(
-			@QueryParam("test") String test,
-			@FormDataParam("file") InputStream uploadedInputStream,
-			@FormDataParam("file") FormDataContentDisposition fileDetail, 
-			@FormDataParam("directory") String directory) 
+
+
+	@PostMapping("/zipupload")
+	public ResponseEntity uploadArchiveZip(
+			@RequestParam("directory") String directory,
+			@RequestParam("file") MultipartFile file)
 	{
-		String zipFile = fileDetail.getFileName();
+		String zipFile = file.getOriginalFilename();
 		String output = "";
 		try {
 			if (StringUtils.isBlank(zipFile))
 				throw new Exception("You must specify a zip file to upload");
-			
+
 			output = "Uploding file: " + zipFile + " ...\r\n";
-			ZipInputStream zis = new ZipInputStream(uploadedInputStream);
+			ZipInputStream zis = new ZipInputStream(file.getInputStream());
 		    ZipEntry ze = zis.getNextEntry();
 		    byte[] doc = null;
 		    boolean isFile = false;
 		    if (ze == null) {
-		    	doc = IOUtils.toByteArray(uploadedInputStream);
+		    	doc = IOUtils.toByteArray(file.getInputStream());
 		    	isFile = true;
 		    }
 			while (ze != null || doc != null) {
-					String fileName = null; 
+					String fileName = null;
 				   if (!isFile) {
 					   fileName = ze.getName();
 					   doc = IOUtils.toByteArray(zis);
 				   } else {
 					   fileName = zipFile;
 				   }
-		    	   
+
 		    	   output += "Saving " + fileName + "... ";
-		    	   String fullPath = (StringUtils.isNotBlank(directory)) ? directory + "/" + fileName : fileName;		    	   
-		    	   
+		    	   String fullPath = (StringUtils.isNotBlank(directory)) ? directory + "/" + fileName : fileName;
+
 		    	   String content = new String(doc);
-		    	   Response r = saveResource(fullPath, content);
+		    	   ResponseEntity r = saveResource(fullPath, content);
 		    	   doc = null;
-		    	   
-		    	   if (Status.OK.getStatusCode() != r.getStatus()) {
-		    		   output += " ERROR: " + r.getEntity().toString() + "\r\n";
+
+		    	   if (HttpStatus.OK != r.getStatusCode()) {
+		    		   output += " ERROR: " + r.getBody().toString() + "\r\n";
 		    	   } else {
 		    		   output += " OK\r\n";
 		    	   }
@@ -514,30 +492,30 @@ public class BasicRepositoryResource2 implements ISaikuRepository {
 					zis.closeEntry();
 					zis.close();
 				}
-				uploadedInputStream.close();
-	    		
+				file.getInputStream().close();
+
 		    	output += " SUCCESSFUL!\r\n";
-		    	return Response.ok(output).build();
-		    	
+		    	return ResponseEntity.ok(output);
+
 		} catch(Exception e){
 			log.error("Cannot unzip resources " + zipFile ,e);
 			String error = ExceptionUtils.getRootCauseMessage(e);
-			return Response.serverError().entity(output + "\r\n" + error).build();
-		}	
-		
-		
+			return ResponseEntity.internalServerError().body(output + "\r\n" + error);
+		}
+
+
 	}
-	
+
 	private List<IRepositoryObject> getRepositoryObjects(FileObject root, String fileType) throws Exception {
 		List<IRepositoryObject> repoObjects = new ArrayList<IRepositoryObject>();
 		FileObject[] objects = new FileObject[0];
 		if (root.getType().equals(FileType.FOLDER)) {
 			objects = root.getChildren();
-		} else { 
+		} else {
 			objects = new FileObject[]{ root };
 		}
-		
-		
+
+
 		for (FileObject file : objects) {
 			if (!file.isHidden()) {
 				String filename = file.getName().getBaseName();
@@ -555,7 +533,7 @@ public class BasicRepositoryResource2 implements ISaikuRepository {
 
 						repoObjects.add(new RepositoryFileObject(filename, "#" + relativePath, extension, relativePath, acls));
 					}
-					if (file.getType().equals(FileType.FOLDER)) { 
+					if (file.getType().equals(FileType.FOLDER)) {
 						repoObjects.add(new RepositoryFolderObject(filename, "#" + relativePath, relativePath, acls, getRepositoryObjects(file, fileType)));
 					}
 					Collections.sort(repoObjects, new Comparator<IRepositoryObject>() {
@@ -566,16 +544,16 @@ public class BasicRepositoryResource2 implements ISaikuRepository {
 							if (o1.getType().equals(IRepositoryObject.Type.FILE) && o2.getType().equals(IRepositoryObject.Type.FOLDER))
 								return 1;
 							return o1.getName().toLowerCase().compareTo(o2.getName().toLowerCase());
-							
+
 						}
-						
+
 					});
 				}
 			}
 		}
 		return repoObjects;
 	}
-	
+
 
 
 	private AclEntry getAcl(String path){

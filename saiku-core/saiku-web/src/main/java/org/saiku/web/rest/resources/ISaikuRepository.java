@@ -2,16 +2,13 @@ package org.saiku.web.rest.resources;
 
 import java.util.List;
 
-import jakarta.ws.rs.DELETE;
-import jakarta.ws.rs.FormParam;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
-import jakarta.ws.rs.core.Response;
-
 import org.saiku.web.rest.objects.repository.IRepositoryObject;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 public interface ISaikuRepository {
 
@@ -19,39 +16,40 @@ public interface ISaikuRepository {
 	 * Get Saved Queries.
 	 * @return A list of SavedQuery Objects.
 	 */
-	@GET
-	@Produces({ "application/json" })
+
+	@GetMapping(value = "/", produces = {MediaType.APPLICATION_JSON_VALUE})
 	public List<IRepositoryObject> getRepository(
-			@QueryParam("path") String path, @QueryParam("type") String type);
+			@RequestParam("path") String path, @RequestParam("type") String type);
 
 	/**
 	 * Load a resource.
 	 * @param file - The name of the repository file to load.
 	 * @return A Repository File Object.
 	 */
-	@GET
-	@Produces({ "text/plain" })
-	@Path("/resource")
-	public Response getResource(@QueryParam("file") String file);
+
+	@GetMapping(value = "/resource", produces = {MediaType.TEXT_PLAIN_VALUE})
+	public ResponseEntity getResource(@RequestParam("file") String file);
 
 	/**
 	 * Save a resource.
-	 * @param file - The name of the repository file to load.
+	 *
+	 * @param file    - The name of the repository file to load.
 	 * @param content - The content to save.
 	 * @return Status
 	 */
-	@POST
-	@Path("/resource")
-	public Response saveResource(@FormParam("file") String file,
-			@FormParam("content") String content);
+
+	@PostMapping(value = "/resource")
+	public ResponseEntity saveResource(@RequestParam("file") String file,
+									   @RequestParam("content") String content);
 
 	/**
 	 * Delete a resource.
+	 *
 	 * @param file - The name of the repository file to load.
 	 * @return Status
 	 */
-	@DELETE
-	@Path("/resource")
-	public Response deleteResource(@QueryParam("file") String file);
+
+	@DeleteMapping(value = "/resource")
+	public ResponseEntity deleteResource(@RequestParam("file") String file);
 
 }

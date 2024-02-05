@@ -35,12 +35,12 @@
         <!-- web -->
         <tomcat.version>apache-tomcat-10.1.17</tomcat.version>
         <tomcat.source>target/stage/tomcat/</tomcat.source>
-        <jackson.version>2.16.1</jackson.version>
         <jakarta.servlet.version>6.0.0</jakarta.servlet.version>
         <spring.version>6.1.2</spring.version>
         <spring-security-oauth2.version>2.5.2.RELEASE</spring-security-oauth2.version>
         <spring-ldap-core.version>3.2.1</spring-ldap-core.version>
-        <jersey.version>3.1.5</jersey.version>
+        <jackson.version>2.16.1</jackson.version>
+
     </properties>
     <repositories>
         <repository>
@@ -348,6 +348,17 @@
                 <artifactId>spring-ldap-core</artifactId>
                 <version>${spring-ldap-core.version}</version>
             </dependency>
+            <!-- Jackson -->
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
             <!-- Jakarta -->
             <dependency>
                 <groupId>jakarta.servlet</groupId>
@@ -356,105 +367,12 @@
                 <scope>provided</scope>
             </dependency>
             <dependency>
-                <groupId>jakarta.ws.rs</groupId>
-                <artifactId>jakarta.ws.rs-api</artifactId>
-                <version>3.1.0</version>
-            </dependency>
-            <dependency>
                 <groupId>jakarta.servlet.jsp</groupId>
                 <artifactId>jakarta.servlet.jsp-api</artifactId>
                 <version>3.1.1</version>
                 <scope>provided</scope>
             </dependency>
-            <dependency>
-                <groupId>jakarta.xml.bind</groupId>
-                <artifactId>jakarta.xml.bind-api</artifactId>
-                <version>4.0.1</version>
-            </dependency>
-            <dependency>
-                <groupId>org.glassfish.jaxb</groupId>
-                <artifactId>jaxb-runtime</artifactId>
-                <version>4.0.4</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sun.xml.bind</groupId>
-                <artifactId>jaxb-impl</artifactId>
-                <version>4.0.3</version>
-            </dependency>
-            <!-- Jersey -->
-            <dependency>
-                <groupId>org.glassfish.jersey.ext</groupId>
-                <artifactId>jersey-spring6</artifactId>
-                <version>${jersey.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.glassfish.jersey.containers</groupId>
-                <artifactId>jersey-container-servlet</artifactId>
-                <version>${jersey.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.glassfish.jersey.inject</groupId>
-                <artifactId>jersey-hk2</artifactId>
-                <version>${jersey.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.glassfish.jersey.media</groupId>
-                <artifactId>jersey-media-json-jackson</artifactId>
-                <version>${jersey.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sun.jersey.jersey-test-framework</groupId>
-                <artifactId>jersey-test-framework-core</artifactId>
-                <version>${jersey.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.sun.jersey.jersey-test-framework</groupId>
-                <artifactId>jersey-test-framework-external</artifactId>
-                <version>${jersey.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.glassfish.jersey.media</groupId>
-                <artifactId>jersey-media-multipart</artifactId>
-                <version>${jersey.version}</version>
-            </dependency>
-            <!-- Jackson -->
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-databind</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.jaxrs</groupId>
-                <artifactId>jackson-jaxrs-json-provider</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.jakarta.rs</groupId>
-                <artifactId>jackson-jakarta-rs-json-provider</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sun.xml.ws</groupId>
-                <artifactId>jaxws-rt</artifactId>
-                <version>2.3.7</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.module</groupId>
-                <artifactId>jackson-module-jakarta-xmlbind-annotations</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-core</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-annotations</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
+
             <!-- commons -->
 
             <dependency>

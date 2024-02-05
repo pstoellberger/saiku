@@ -5,9 +5,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.ws.rs.core.MultivaluedMap;
 
 import org.apache.commons.lang.StringUtils;
+import org.springframework.util.MultiValueMap;
 
 public class ServletUtil {
 	
@@ -44,11 +44,11 @@ public class ServletUtil {
 		return queryParams;
 	}
 	
-	public static Map<String, String> getParameters(MultivaluedMap<String, String> formParams) {
+	public static Map<String, String> getParameters(MultiValueMap<String, String> formParams) {
 		return getParameters(formParams, PREFIX_PARAMETER);
 	}
 	
-	public static Map<String, String> getParameters(MultivaluedMap<String, String> formParams, String prefix) {
+	public static Map<String, String> getParameters(MultiValueMap<String, String> formParams, String prefix) {
 		Map<String, String> queryParams = new HashMap<String, String>();
 		if (formParams != null) {
 			for (String key : formParams.keySet()) {
@@ -86,7 +86,7 @@ public class ServletUtil {
 		return r;
 	}
 
-	public static String replaceParameters(MultivaluedMap<String, String> formParams, String query) {
+	public static String replaceParameters(MultiValueMap<String, String> formParams, String query) {
 		Map<String, String> queryParams = getParameters(formParams);
 		String r = replaceParameters(query, queryParams);
 		return r;

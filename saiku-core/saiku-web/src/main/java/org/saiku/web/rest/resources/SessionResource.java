@@ -15,30 +15,23 @@
  */
 package org.saiku.web.rest.resources;
 
-import java.util.Map;
-
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.DELETE;
-import jakarta.ws.rs.FormParam;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.Response.Status;
-
 import org.apache.commons.lang.StringUtils;
 import org.saiku.service.ISessionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 
 @Component
-@Path("/saiku/session")
+@RestController
+@RequestMapping("/saiku/session")
 public class SessionResource  {
 
 
@@ -50,28 +43,24 @@ public class SessionResource  {
 		this.sessionService = ss;
 	}
 
-	@POST
-	@Consumes("application/x-www-form-urlencoded")
-	public Response login(
-			@Context HttpServletRequest req,
-			@FormParam("username") String username, 
-			@FormParam("password") String password) 
+	@PostMapping(consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+	public ResponseEntity login(
+			HttpServletRequest req,
+			@RequestParam("username") String username,
+			@RequestParam("password") String password) 
 	{
 		try {
 			sessionService.login(req, username, password);
-			
-			return Response.ok().build();
+			return getSession(req);
 		}
 		catch (Exception e) {
 			log.debug("Error logging in:" + username, e);
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 		}
 	}
 
-	@GET
-	@Consumes("application/x-www-form-urlencoded")
-	@Produces(MediaType.APPLICATION_JSON)
-	public Map<String,Object> getSession(@Context HttpServletRequest req) {
+	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity getSession(HttpServletRequest req) {
 		
 		Map<String, Object> sess = sessionService.getSession();
 		try {
@@ -82,16 +71,16 @@ public class SessionResource  {
 		} catch (Exception e) {
 			log.debug("Cannot get language!", e);
 		}
-		return sess;
+		return ResponseEntity.ok(sess);
 	}
 
-	@DELETE
-	public Response logout(@Context HttpServletRequest req) 
+	@DeleteMapping
+	public ResponseEntity logout(HttpServletRequest req)
 	{
 		sessionService.logout(req);
 		//		NewCookie terminate = new NewCookie(TokenBasedRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY, null);
 
-		return Response.ok().build();
+		return ResponseEntity.ok().build();
 
 	}
 

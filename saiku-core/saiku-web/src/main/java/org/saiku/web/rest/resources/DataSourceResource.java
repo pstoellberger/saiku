@@ -15,25 +15,23 @@
  */
 package org.saiku.web.rest.resources;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
-import jakarta.ws.rs.DELETE;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.Response.Status;
-
 import org.saiku.datasources.datasource.SaikuDatasource;
 import org.saiku.service.datasource.DatasourceService;
 import org.saiku.service.util.exception.SaikuServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 @Component
-@Path("/saiku/{username}/datasources")
+@RestController
+@RequestMapping(value = "/saiku/{username}/datasources", produces = MediaType.APPLICATION_JSON_VALUE)
 public class DataSourceResource {
 
     DatasourceService datasourceService;
@@ -48,9 +46,9 @@ public class DataSourceResource {
      * Get Data Sources.
      * @return A Collection of SaikuDatasource's.
      */
-    @GET
-    @Produces({"application/json" })
-     public Collection<SaikuDatasource> getDatasources() {
+    @GetMapping
+	@ResponseBody
+    public Collection<SaikuDatasource> getDatasources() {
     	try {
 			return datasourceService.getDatasources().values();
 		} catch (SaikuServiceException e) {
@@ -64,17 +62,16 @@ public class DataSourceResource {
      * @param datasourceName - The name of the data source.
      * @return A GONE Status.
      */
-    @DELETE
-	@Path("/{datasource}")
-	public Status deleteDatasource(@PathParam("datasource") String datasourceName){
+
+	@DeleteMapping(path = "/{datasource}")
+	public ResponseEntity deleteDatasource(@PathVariable("datasource") String datasourceName){
     	datasourceService.removeDatasource(datasourceName);
-		return(Status.GONE);
+		return ResponseEntity.status(HttpStatus.GONE).build();
     }
-    
-    @GET
-    @Produces({"application/json" })
-	@Path("/{datasource}")
-	public SaikuDatasource getDatasource(@PathParam("datasource") String datasourceName){
+
+    @GetMapping(path = "/{datasource}")
+	@ResponseBody
+	public SaikuDatasource getDatasource(@PathVariable("datasource") String datasourceName){
     	return datasourceService.getDatasource(datasourceName);
     }
 

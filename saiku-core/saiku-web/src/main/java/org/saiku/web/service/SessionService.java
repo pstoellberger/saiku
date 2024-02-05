@@ -38,6 +38,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.context.request.RequestContextHolder;
 
 
@@ -146,13 +148,10 @@ public class SessionService implements ISessionService {
 				sessionHolder.remove(p);
 			}
 		}
-		SecurityContextHolder.getContext().getAuthentication().setAuthenticated(false);
-		SecurityContextHolder.getContext().setAuthentication(null);
-		SecurityContextHolder.clearContext(); 
-		HttpSession session = req.getSession(false);
-		if (session != null) {
-			session.invalidate();
-		}
+		new SecurityContextLogoutHandler().logout(req, null, SecurityContextHolder.getContext().getAuthentication());
+
+
+
 	}
 
 	/* (non-Javadoc)
@@ -165,6 +164,8 @@ public class SessionService implements ISessionService {
 			Authentication authentication = this.authenticationManager.authenticate(token);
 			log.debug("Logging in with [{}]", authentication.getPrincipal());
 			SecurityContextHolder.getContext().setAuthentication(authentication);
+			HttpSession session = req.getSession(true);
+			session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, SecurityContextHolder.getContext());
 		}
 		catch (BadCredentialsException bd) {
 			throw new RuntimeException("Authentication failed for: " + username, bd);
