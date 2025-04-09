@@ -33,7 +33,7 @@
         <fop.version>2.4</fop.version>
         <itext.version>5.5.0</itext.version>
         <log4j.version>1.2.14</log4j.version>
-        <postgresql.version>42.6.0</postgresql.version>
+        <postgresql.version>42.7.5</postgresql.version>
     </properties>
     <repositories>
         <repository>
